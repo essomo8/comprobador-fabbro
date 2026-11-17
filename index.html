@@ -987,7 +987,7 @@ function pintarChip(){
   if (!configurada()) { tx.textContent = "Sin configurar"; chip.classList.add("err"); return; }
   if (necesitaClave(C) && !clave) { tx.textContent = "Falta la clave de acceso"; chip.classList.add("err"); return; }
   if (catalogo) { tx.textContent = "FABBRO · " + catalogo.lista.length.toLocaleString("es-ES") + " artículos"; chip.classList.add("ok"); return; }
-  tx.textContent = C.modo === "catalogo" ? "FABBRO listo" : "FABBRO listo · por código";
+  tx.textContent = C.modo === "codigo" ? "FABBRO listo · código a código" : "FABBRO listo";
   chip.classList.add("ok");
 }
 
