@@ -206,6 +206,21 @@
   .copiar{border:1px solid var(--linea);background:#fff;border-radius:3px;font-size:12px;padding:4px 9px;cursor:pointer}
   .copiar:hover{border-color:var(--gris)}
 
+  /* Interruptores de comprobaciones */
+  .switches{display:flex;flex-direction:column}
+  .sw{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--linea);cursor:pointer;user-select:none}
+  .sw:last-child{border-bottom:0}
+  .sw input{position:absolute;opacity:0;pointer-events:none}
+  .sw .tr{flex:0 0 42px;height:24px;border-radius:12px;background:var(--linea);position:relative;transition:background .18s}
+  .sw .tr::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s}
+  .sw input:checked+.tr{background:var(--petroleo)}
+  .sw input:checked+.tr::after{transform:translateX(18px)}
+  .sw input:focus-visible+.tr{outline:2px solid var(--petroleo);outline-offset:2px}
+  .sw .tx b{display:block;font-size:14px}
+  .sw .tx span{font-size:12.5px;color:var(--suave)}
+  .sw.off .tx b{color:var(--suave)}
+  .sw .nd{margin-left:auto;font-size:11px;font-weight:700;color:var(--rev-tx);background:var(--rev-bg);padding:2px 7px;border-radius:2px;white-space:nowrap}
+
   /* ---------- Vista Configuración ---------- */
   .cfg-hd{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
   .cfg-hd h1{font-size:34px}
@@ -350,15 +365,10 @@
     </div>
 
     <div class="card">
-      <h2>Qué se comprueba</h2>
-      <p class="desc">Cada producto del proyecto se cruza con el maestro de artículos de FABBRO.</p>
-      <ol class="pasos">
-        <li><div>Que el producto tenga código puesto en Coohom.</div></li>
-        <li><div>Que ese código exista en FABBRO.</div></li>
-        <li><div>Que la descripción de FABBRO coincida con el nombre de Coohom <span class="ayuda" style="display:block;margin-top:2px" id="txtUmbral"></span></div></li>
-        <li><div id="txtPrecios">Que el artículo tenga precio de compra y precio de venta.</div></li>
-      </ol>
-      <p class="ayuda" style="margin-top:12px">Al terminar puedes ver el Excel en pantalla y descargarlo.</p>
+      <h2>Qué comprobar</h2>
+      <p class="desc">Activa solo lo que quieras revisar. Si ya hay resultados, se recalculan al momento, sin volver a consultar FABBRO.</p>
+      <div class="switches" id="switches"></div>
+      <p class="ayuda" style="margin-top:12px" id="txtChecks"></p>
     </div>
   </div>
 
@@ -378,7 +388,7 @@
     <div class="kpis" id="kpis"></div>
     <div class="barra-ok" id="barraOk"></div>
     <div class="tools">
-      <input type="search" id="buscar" placeholder="Buscar por nombre, código o descripción…">
+      <input type="search" id="buscar" placeholder="Buscar por nombre, código o tipo…">
       <span class="cnt" id="cnt"></span>
       <span class="sp"></span>
       <div class="seg seg-vista" id="segVista">
@@ -503,14 +513,11 @@
           <div><label class="f">Ruta de la lista</label><input type="text" id="c_listPath" data-c="listPath" placeholder="(automático)" list="dlKeys"></div>
           <div><label class="f">Código</label><input type="text" id="c_fCode" data-c="fCode" placeholder="codigo" list="dlKeys"></div>
         </div>
-        <label class="f">Descripción</label><input type="text" id="c_fDesc" data-c="fDesc" placeholder="descripcion" list="dlKeys">
         <div class="row">
           <div><label class="f">Precio de compra</label><input type="text" id="c_fCompra" data-c="fCompra" placeholder="precio_compra" list="dlKeys"></div>
           <div><label class="f">Precio de venta</label><input type="text" id="c_fVenta" data-c="fVenta" placeholder="precio_venta" list="dlKeys"></div>
         </div>
         <datalist id="dlKeys"></datalist>
-        <label class="chk"><input type="checkbox" id="c_checkCompra" data-c="checkCompra"> Comprobar el precio de compra</label>
-        <div class="ayuda" style="margin-left:24px">Desactívalo mientras la API de FABBRO no devuelva el precio de compra. Si el campo está vacío, tampoco se comprueba.</div>
         <label class="chk"><input type="checkbox" id="c_ceroFalta" data-c="ceroFalta"> Un precio a 0 cuenta como «sin precio»</label>
       </section>
 
@@ -537,18 +544,13 @@
       <!-- Coohom y criterio -->
       <section class="card">
         <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></span>
-        <h2>Coohom y criterio</h2>
+        <h2>Coohom</h2>
         <p class="desc">Campos del JSON de Coohom que se usan por defecto. Si los dejas vacíos, se detectan en cada archivo.</p>
         <div class="row">
           <div><label class="f">Nombre</label><input type="text" id="c_coNombre" data-c="coNombre" placeholder="(automático)"></div>
           <div><label class="f">Código</label><input type="text" id="c_coCodigo" data-c="coCodigo" placeholder="(automático)"></div>
           <div><label class="f">Cantidad</label><input type="text" id="c_coCant" data-c="coCant" placeholder="(automático)"></div>
         </div>
-        <div class="row">
-          <div><label class="f">Descripción coincide desde (%)</label><input type="number" min="1" max="100" id="c_uOk" data-c="uOk"></div>
-          <div><label class="f">A revisar desde (%)</label><input type="number" min="0" max="99" id="c_uRev" data-c="uRev"></div>
-        </div>
-        <div class="ayuda">Por debajo del segundo valor, la descripción no coincide. No cuentan mayúsculas, acentos, el orden de las palabras ni palabras como «de», «con» o «cm».</div>
       </section>
 
       <!-- Compartir -->
@@ -661,35 +663,9 @@ async function sha256(t){
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
-/* Normalización y similitud */
+/* Normalización de textos y códigos */
 function norm(s){ return String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " "); }
 const normCode = s => String(s ?? "").trim().toUpperCase().replace(/\s+/g, "");
-function lev(a, b){
-  if (a === b) return 0; if (!a.length) return b.length; if (!b.length) return a.length;
-  let prev = new Array(b.length + 1), cur = new Array(b.length + 1);
-  for (let j = 0; j <= b.length; j++) prev[j] = j;
-  for (let i = 1; i <= a.length; i++) {
-    cur[0] = i; const ca = a.charCodeAt(i - 1);
-    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca === b.charCodeAt(j - 1) ? 0 : 1));
-    [prev, cur] = [cur, prev];
-  }
-  return prev[b.length];
-}
-const ratio = (a, b) => (!a.length && !b.length) ? 1 : 1 - lev(a, b) / Math.max(a.length, b.length);
-const VACIAS = new Set(["de","del","la","el","los","las","con","y","para","en","a","cm","mm","ud","uds"]);
-function limpiarTokens(s){ const t = s.split(" ").filter(w => w && !VACIAS.has(w)); return t.length ? t : s.split(" ").filter(Boolean); }
-function similitud(x, y){
-  const a = norm(x), b = norm(y);
-  if (!a || !b) return 0;
-  const ta = limpiarTokens(a), tb = limpiarTokens(b);
-  if (ta.join(" ") === tb.join(" ")) return 100;
-  const sortR = ratio([...ta].sort().join(" "), [...tb].sort().join(" "));
-  const sa = new Set(ta), sb = new Set(tb);
-  const inter = [...sa].filter(t => sb.has(t)).sort(), da = [...sa].filter(t => !sb.has(t)).sort(), db = [...sb].filter(t => !sa.has(t)).sort();
-  const t0 = inter.join(" "), t1 = [...inter, ...da].join(" "), t2 = [...inter, ...db].join(" ");
-  const setR = Math.max(ratio(t0, t1), ratio(t0, t2), ratio(t1, t2));
-  return Math.round(((sortR + setR) / 2) * 100);
-}
 function parsePrecio(v){
   if (v === null || v === undefined || v === "") return null;
   if (typeof v === "number") return isFinite(v) ? v : null;
@@ -1022,8 +998,6 @@ function pedirPass(){
 function pintarAvisos(){
   $("#avisoConfig").hidden = demo || configurada() || (catalogo && catalogo.origen !== "API");
   $("#avisoClave").hidden = demo || !configurada() || !necesitaClave(C) || !!clave || (catalogo && catalogo.origen !== "API");
-  $("#txtPrecios").textContent = C.checkCompra !== false && (C.fCompra || !configurada()) ? "Que el artículo tenga precio de compra y precio de venta." : "Que el artículo tenga precio de venta (el de compra no se comprueba).";
-  $("#txtUmbral").textContent = `Coincide desde ${C.uOk} % · a revisar entre ${C.uRev} y ${C.uOk - 1} % · por debajo, no coincide`;
   pintarChip();
 }
 $("#btnClaveRapida").onclick = () => {
@@ -1049,7 +1023,6 @@ function cfgDesdeForm(){
   const o = { ...C };
   $$("[data-c]").forEach(el => { const k = el.dataset.c; o[k] = el.type === "checkbox" ? el.checked : el.type === "number" ? (parseInt(el.value, 10) || 0) : el.value.trim(); });
   o.modo = formModo; o.auth = formAuth;
-  if (!(o.uOk > 0 && o.uOk <= 100 && o.uRev >= 0 && o.uRev < o.uOk)) { o.uOk = C.uOk; o.uRev = C.uRev; }
   if (nuevoBloqueo !== null) o.bloqueo = nuevoBloqueo;
   return o;
 }
@@ -1305,22 +1278,39 @@ function overlay(show, tit, txt, pct){
   if (txt != null) $("#ovTxt").textContent = txt;
   $("#ovBar").style.width = (pct == null ? 100 : pct) + "%";
 }
-function sugerir(nombre, lista, cf){
-  if (!lista || !lista.length || !cf.fDesc) return null;
-  if (!lista.__tok) lista.__tok = lista.map(a => new Set(limpiarTokens(norm(getPath(a, cf.fDesc)))));
-  const t = new Set(limpiarTokens(norm(nombre)));
-  if (!t.size) return null;
-  const cand = [];
-  lista.forEach((a, i) => { const s = lista.__tok[i]; if (!s.size) return; let n = 0; for (const w of t) if (s.has(w)) n++; if (n) cand.push([2 * n / (t.size + s.size), i]); });
-  cand.sort((a, b) => b[0] - a[0]);
-  let best = null;
-  for (const [, i] of cand.slice(0, 15)) {
-    const sc = similitud(nombre, getPath(lista[i], cf.fDesc));
-    if (!best || sc > best.sim) best = { sim: sc, codigo: String(getPath(lista[i], cf.fCode) ?? ""), desc: String(getPath(lista[i], cf.fDesc) ?? "") };
-  }
-  return best && best.sim >= C.uRev ? best : null;
+let resultados = [], info = {}, cfgUsada = C, ultimo = null;
+/* Comprobaciones que se pueden activar o desactivar */
+const CHECKS = [
+  { id: "sinCodigo", t: "Código puesto", d: "Que cada pieza tenga código en Coohom" },
+  { id: "noExiste", t: "El código existe en FABBRO", d: "Que el código esté dado de alta en el catálogo" },
+  { id: "sinCompra", t: "Precio de compra", d: "Que el artículo tenga precio de compra en FABBRO" },
+  { id: "sinVenta", t: "Precio de venta", d: "Que la pieza tenga precio en la tarifa de venta" },
+  { id: "inactivo", t: "Artículo activo", d: "Avisar si el artículo está dado de baja en FABBRO" }
+];
+let checks = Object.assign(Object.fromEntries(CHECKS.map(c => [c.id, true])), store.get("checks", {}));
+function pintarChecks(){
+  const sinCostes = catalogo && catalogo.sinCostes;
+  $("#switches").innerHTML = CHECKS.map(c => `<label class="sw ${checks[c.id] ? "" : "off"}">
+      <input type="checkbox" data-chk="${c.id}" ${checks[c.id] ? "checked" : ""}><span class="tr"></span>
+      <span class="tx"><b>${c.t}</b><span>${c.d}</span></span>
+      ${c.id === "sinCompra" && sinCostes && !demo ? '<span class="nd" title="La clave no tiene el permiso costs:read">Sin datos</span>' : ""}
+    </label>`).join("");
+  const n = CHECKS.filter(c => checks[c.id]).length;
+  $("#txtChecks").textContent = n ? `${n} de ${CHECKS.length} comprobaciones activas.` : "No hay ninguna comprobación activa: todo saldrá como correcto.";
+  $$("#switches input").forEach(i => i.onchange = () => {
+    checks[i.dataset.chk] = i.checked; store.set("checks", checks);
+    pintarChecks(); recalcular();
+  });
 }
-let resultados = [], info = {}, cfgUsada = C;
+/* Vuelve a evaluar con los datos ya descargados */
+function recalcular(){
+  if (!ultimo) return;
+  resultados = ultimo.productos.map(p => evaluar(p, ultimo.porCodigo, ultimo.cf));
+  resultados.sort((a, b) => ORD[a.estado] - ORD[b.estado] || a.nombre.localeCompare(b.nombre, "es"));
+  if (filtro !== "todos" && FILTROS.find(f => f.id === filtro && f.chk && !checks[f.chk])) filtro = "todos";
+  pintarResultados();
+}
+const checksActivos = () => CHECKS.filter(c => checks[c.id]).map(c => c.t).join(" · ") || "ninguna";
 $("#btnComprobar").onclick = () => comprobar();
 $("#btnRecomprobar").onclick = async () => {
   const antes = resultados.filter(r => r.estado !== "ok").length;
@@ -1377,49 +1367,49 @@ async function comprobar(mantener = false){
       await Promise.all(Array.from({ length: Math.min(4, codigos.length || 1) }, worker));
     }
     overlay(false);
+    ultimo = { productos, porCodigo, cf };
     resultados = productos.map(p => evaluar(p, porCodigo, cf));
     resultados.sort((a, b) => ORD[a.estado] - ORD[b.estado] || a.nombre.localeCompare(b.nombre, "es"));
     info = { archivos: proyecto.archivos.join(", "), fecha: new Date(),
       origen: demo ? "datos de ejemplo" : conPreview ? "API · vista previa de pedido + catálogo" : catalogo && usarCatalogo ? (catalogo.origen === "API" ? "API · catálogo completo" : catalogo.origen) : "API · consulta por código" };
     cfgUsada = cf;
     if (!mantener) { filtro = "todos"; $("#buscar").value = ""; orden = { col: null, dir: 1 }; abiertos.clear(); gruposCerrados.clear(); gruposCerrados.add("ok"); }
-    pintarResultados(); pintarChip();
+    pintarResultados(); pintarChip(); pintarChecks();
     $("#resultados").hidden = false;
     if (!mantener) $("#resultados").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) { overlay(false); est.className = "estado err"; est.textContent = msgError(e); }
 }
 const ORD = { error: 0, revisar: 1, ok: 2 };
 function evaluar(p, porCodigo, cf){
-  const r = { tipo: p.tipo || "", nombre: p.nombre, codigo: p.codigo, cantidad: p.cantidad, archivos: [...p.archivos].join(", "), existe: null, descF: "", sim: null, compra: null, venta: null, sugerencia: null, inc: [], flags: {} };
-  const add = (nivel, txt, flag) => { r.inc.push({ nivel, txt }); if (flag) r.flags[flag] = true; };
+  const r = { tipo: p.tipo || "", nombre: p.nombre, codigo: p.codigo, cantidad: p.cantidad, archivos: [...p.archivos].join(", "), existe: null, compra: null, venta: null, inc: [], flags: {} };
+  const add = (id, nivel, txt) => { if (!checks[id]) return; r.inc.push({ nivel, txt }); r.flags[id] = true; };
   r.unidad = p.unidad || ""; r.muebles = p.muebles ? [...p.muebles] : [];
-  if (!p.codigo) add("error", "Sin código", "sinCodigo");
+  const falta = v => v == null || (C.ceroFalta && v === 0);
+  if (!p.codigo) add("sinCodigo", "error", "Sin código");
   else {
     const art = porCodigo.get(normCode(p.codigo));
-    if (art && art.__error) { r.existe = "error"; add("revisar", "No se pudo consultar: " + art.__error, "errConsulta"); }
-    else if (!art) { r.existe = false; add("error", "El código no existe en FABBRO", "noExiste"); if (p.conPv && !p.faltaPv && p.ventaPv != null) r.venta = p.ventaPv; }
-    else {
+    if (art && art.__error) { r.existe = "error"; r.inc.push({ nivel: "revisar", txt: "No se pudo consultar: " + art.__error }); r.flags.errConsulta = true; }
+    else if (!art) {
+      r.existe = false; add("noExiste", "error", "El código no existe en FABBRO");
+      if (p.conPv && !p.faltaPv && p.ventaPv != null) r.venta = p.ventaPv;
+    } else {
       r.existe = true;
-      r.descF = String(getPath(art, cf.fDesc) ?? "").trim();
-      if (!r.descF) add("revisar", "Sin descripción en FABBRO", "descRevisar");
-      else { r.sim = similitud(p.nombre, r.descF); if (r.sim < C.uRev) add("error", "La descripción no coincide", "descNo"); else if (r.sim < C.uOk) add("revisar", "Descripción parecida: revisar", "descRevisar"); }
-      const compraActiva = cf.checkCompra !== false && !!cf.fCompra && !(catalogo && catalogo.sinCostes);
-      if (getPath(art, "active") === false || getPath(art, "activo") === false) add("revisar", "Artículo inactivo en FABBRO", "inactivo");
-      r.compra = compraActiva ? parsePrecio(getPath(art, cf.fCompra)) : null;
-      const falta = v => v == null || (C.ceroFalta && v === 0);
-      if (!compraActiva) r.flags.compraNoDisp = true;
-      else if (falta(r.compra)) add("error", "Sin precio de compra", "sinCompra");
+      if (getPath(art, "active") === false || getPath(art, "activo") === false) add("inactivo", "revisar", "Artículo inactivo en FABBRO");
+      // Precio de compra: solo se puede comprobar si la API lo da
+      const hayCostes = !!cf.fCompra && !(catalogo && catalogo.sinCostes);
+      r.compra = hayCostes ? parsePrecio(getPath(art, cf.fCompra)) : null;
+      if (!hayCostes) r.flags.compraNoDisp = true;
+      else if (falta(r.compra)) add("sinCompra", "error", "Sin precio de compra");
+      // Precio de venta: en modo vista previa manda la tarifa de FABBRO
       if (p.conPv) {
-        // Modo vista previa: manda la tarifa de venta de FABBRO (un 0 explícito no cuenta como falta)
         r.venta = p.ventaPv; r.ventaFicha = cf.fVenta ? parsePrecio(getPath(art, cf.fVenta)) : null;
-        if (p.faltaPv || falta(r.venta)) add("error", "Sin precio de venta en la tarifa", "sinVenta");
+        if (p.faltaPv || falta(r.venta)) add("sinVenta", "error", "Sin precio de venta en la tarifa");
       } else {
         r.venta = cf.fVenta ? parsePrecio(getPath(art, cf.fVenta)) : null;
-        if (falta(r.venta)) add("error", "Sin precio de venta", "sinVenta");
+        if (falta(r.venta)) add("sinVenta", "error", "Sin precio de venta");
       }
     }
   }
-  if ((r.flags.sinCodigo || r.flags.noExiste) && catalogo) r.sugerencia = sugerir(p.nombre, catalogo.lista, cf);
   r.estado = r.inc.some(i => i.nivel === "error") ? "error" : r.inc.length ? "revisar" : "ok";
   return r;
 }
@@ -1431,27 +1421,26 @@ let filtro = "todos", orden = { col: null, dir: 1 };
 const FILTROS = [
   { id: "todos", l: "Productos", cls: "k-tot", f: () => true },
   { id: "ok", l: "Correctos", cls: "k-ok", f: r => r.estado === "ok" },
-  { id: "sinCodigo", l: "Sin código", cls: "k-err", f: r => r.flags.sinCodigo },
-  { id: "noExiste", l: "Código no existe", cls: "k-err", f: r => r.flags.noExiste },
-  { id: "descNo", l: "Descripción distinta", cls: "k-err", f: r => r.flags.descNo },
-  { id: "descRevisar", l: "Descripción a revisar", cls: "k-rev", f: r => r.flags.descRevisar },
-  { id: "sinCompra", l: "Sin precio de compra", cls: "k-err", f: r => r.flags.sinCompra, ocultarSi0: () => resultados.some(r => r.flags.compraNoDisp) },
-  { id: "sinVenta", l: "Sin precio de venta", cls: "k-err", f: r => r.flags.sinVenta },
-  { id: "inactivo", l: "Inactivos", cls: "k-rev", f: r => r.flags.inactivo, ocultarSi0: true },
+  { id: "sinCodigo", chk: "sinCodigo", l: "Sin código", cls: "k-err", f: r => r.flags.sinCodigo },
+  { id: "noExiste", chk: "noExiste", l: "Código no existe", cls: "k-err", f: r => r.flags.noExiste },
+  { id: "sinCompra", chk: "sinCompra", l: "Sin precio de compra", cls: "k-err", f: r => r.flags.sinCompra, ocultarSi0: () => resultados.some(r => r.flags.compraNoDisp) },
+  { id: "sinVenta", chk: "sinVenta", l: "Sin precio de venta", cls: "k-err", f: r => r.flags.sinVenta },
+  { id: "inactivo", chk: "inactivo", l: "Inactivos", cls: "k-rev", f: r => r.flags.inactivo, ocultarSi0: true },
   { id: "errConsulta", l: "Sin respuesta", cls: "k-rev", f: r => r.flags.errConsulta, ocultarSi0: true }
 ];
 const hayTipos = () => resultados.some(r => r.tipo);
 const hayMuebles = () => resultados.some(r => (r.muebles && r.muebles.length) || r.unidad);
 const COLS = [
   { k: "estado", l: "Estado" }, { k: "tipo", l: "Tipo" }, { k: "nombre", l: "Producto (Coohom)" }, { k: "cantidad", l: "Uds." }, { k: "codigo", l: "Código" },
-  { k: "existe", l: "En FABBRO" }, { k: "descF", l: "Descripción FABBRO" }, { k: "sim", l: "Similitud" },
+  { k: "existe", l: "En FABBRO" },
   { k: "compra", l: "P. compra" }, { k: "venta", l: "P. venta" }, { k: "inc", l: "Incidencias" }
 ];
 function pintarResultados(){
-  $("#avisoCostes").hidden = !(catalogo && catalogo.sinCostes && cfgUsada.checkCompra !== false && !demo);
+  $("#avisoCostes").hidden = !(catalogo && catalogo.sinCostes && checks.sinCompra && !demo);
   const n = resultados.length, u = resultados.reduce((s, r) => s + r.cantidad, 0);
-  $("#resMeta").textContent = `${info.archivos} · ${n} productos distintos (${u.toLocaleString("es-ES")} uds.) · FABBRO: ${info.origen} · ${info.fecha.toLocaleString("es-ES")}`;
+  $("#resMeta").textContent = `${info.archivos} · ${n} productos distintos (${u.toLocaleString("es-ES")} uds.) · FABBRO: ${info.origen} · ${info.fecha.toLocaleString("es-ES")} · Comprobaciones: ${checksActivos()}`;
   $("#kpis").innerHTML = FILTROS.map(f => {
+    if (f.chk && !checks[f.chk]) return "";
     const v = resultados.filter(f.f).length; if (f.ocultarSi0 && !v && (typeof f.ocultarSi0 !== "function" || f.ocultarSi0())) return "";
     return `<button class="kpi ${f.cls} ${v ? "" : "zero"} ${filtro === f.id ? "on" : ""}" data-f="${f.id}"><div class="v">${v}</div><div class="l">${f.l}</div></button>`;
   }).join("");
@@ -1466,7 +1455,7 @@ function filasVisibles(){
   const f = FILTROS.find(x => x.id === filtro) || FILTROS[0];
   const q = norm($("#buscar").value);
   let rows = resultados.filter(f.f);
-  if (q) rows = rows.filter(r => norm([r.nombre, r.codigo, r.descF].join(" ")).includes(q));
+  if (q) rows = rows.filter(r => norm([r.nombre, r.codigo, r.tipo].join(" ")).includes(q));
   if (orden.col) {
     const k = orden.col;
     const val = r => k === "estado" ? ORD[r.estado] : k === "inc" ? r.inc.length : k === "existe" ? String(r.existe) : r[k];
@@ -1478,17 +1467,14 @@ function filasVisibles(){
 function pintarTabla(){
   const rows = filasVisibles();
   $("#cnt").textContent = `${rows.length} de ${resultados.length} productos`;
-  if (!rows.length) { $("#tbody").innerHTML = `<tr><td colspan="${COLS.length}" class="vacio">No hay productos en esta vista.</td></tr>`; return; }
+  if (!rows.length) { $("#tbody").innerHTML = `<tr><td colspan="${COLS.length + 1}" class="vacio">No hay productos en esta vista.</td></tr>`; return; }
   const pillEst = { ok: '<span class="pill p-ok">Correcto</span>', revisar: '<span class="pill p-rev">Revisar</span>', error: '<span class="pill p-err">Error</span>' };
-  const colSim = s => s >= C.uOk ? "var(--ok)" : s >= C.uRev ? "var(--rev)" : "var(--err)";
   $("#tbody").innerHTML = rows.map(r => {
     const existe = r.existe === true ? '<span class="pill p-ok">Sí</span>' : r.existe === false ? '<span class="pill p-err">No</span>' : r.existe === "error" ? '<span class="pill p-rev">Sin respuesta</span>' : '<span class="pill p-na">—</span>';
-    const sim = r.sim == null ? "" : `<div class="sim"><div class="b"><i style="width:${r.sim}%;background:${colSim(r.sim)}"></i></div><span class="t">${r.sim}%</span></div>`;
-    const precio = (v, ok) => r.existe !== true ? "" : (ok ? esc(eur(v)) : `<span class="falta">${v === 0 ? "0,00 € · " : ""}Falta</span>`);
-    const sug = r.sugerencia ? `<div class="sug">¿Quizá <b>${esc(r.sugerencia.codigo)}</b> · ${esc(r.sugerencia.desc)} (${r.sugerencia.sim}%)?</div>` : "";
-    return `<tr><td>${pillEst[r.estado]}</td>${hayTipos() ? `<td>${esc(r.tipo)}</td>` : ""}<td>${esc(r.nombre)}${sug}</td><td class="num">${r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 })}${r.unidad ? " " + esc(r.unidad) : ""}</td>
-      <td class="cod">${r.codigo ? esc(r.codigo) : '<span class="falta">Sin código</span>'}</td><td>${existe}</td><td>${esc(r.descF)}</td><td>${sim}</td>
-      <td class="num">${r.flags.compraNoDisp ? '<span class="pill p-na">No disponible</span>' : precio(r.compra, !r.flags.sinCompra)}</td><td class="num">${precio(r.venta, !r.flags.sinVenta)}</td>
+    const precio = (v, malo) => malo ? `<span class="falta">${v === 0 ? "0,00 € · " : ""}Falta</span>` : v == null ? '<span style="color:var(--suave)">—</span>' : esc(eur(v));
+    return `<tr><td>${pillEst[r.estado]}</td>${hayTipos() ? `<td>${esc(r.tipo)}</td>` : ""}<td>${esc(r.nombre)}</td><td class="num">${r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 })}${r.unidad ? " " + esc(r.unidad) : ""}</td>
+      <td class="cod">${r.codigo ? esc(r.codigo) : '<span class="falta">Sin código</span>'}</td><td>${existe}</td>
+      <td class="num">${r.flags.compraNoDisp && r.existe === true ? '<span class="pill p-na">No disponible</span>' : precio(r.compra, r.flags.sinCompra)}</td><td class="num">${precio(r.venta, r.flags.sinVenta)}</td>
       <td><div class="inc">${r.inc.length ? r.inc.map(i => `<span class="pill ${i.nivel === "error" ? "p-err" : "p-rev"}">${esc(i.txt)}</span>`).join("") : '<span class="pill p-ok">Sin incidencias</span>'}</div></td></tr>`;
   }).join("");
 }
@@ -1520,19 +1506,17 @@ function definicionGrupos(){
   if (vistaRes === "estado") return [
     { id: "error", t: "Con errores", d: "Hay que corregir algo antes de pasar el proyecto", cls: "g-err", f: r => r.estado === "error" },
     { id: "revisar", t: "A revisar", d: "Probablemente bien, pero conviene mirarlo", cls: "g-rev", f: r => r.estado === "revisar" },
-    { id: "ok", t: "Correctos", d: "Código, descripción y precios en orden", cls: "g-ok", f: r => r.estado === "ok" }
+    { id: "ok", t: "Correctos", d: "Sin incidencias en lo que estás comprobando", cls: "g-ok", f: r => r.estado === "ok" }
   ];
   return [
     { id: "sinCodigo", t: "Sin código", d: "El producto no tiene código en Coohom", cls: "g-err", f: r => r.flags.sinCodigo },
     { id: "noExiste", t: "El código no existe en FABBRO", d: "Revisa el código en Coohom o da de alta el artículo", cls: "g-err", f: r => r.flags.noExiste },
-    { id: "descNo", t: "La descripción no coincide", d: "El código existe, pero parece otro artículo", cls: "g-err", f: r => r.flags.descNo },
     { id: "sinCompra", t: "Sin precio de compra", d: "El artículo no tiene precio de compra en FABBRO", cls: "g-err", f: r => r.flags.sinCompra },
     { id: "sinVenta", t: "Sin precio de venta", d: "El artículo no tiene precio de venta en FABBRO", cls: "g-err", f: r => r.flags.sinVenta },
-    { id: "descRevisar", t: "Descripción a revisar", d: "Se parecen, pero no del todo", cls: "g-rev", f: r => r.flags.descRevisar },
     { id: "inactivo", t: "Artículos inactivos", d: "Existen en FABBRO pero están dados de baja", cls: "g-rev", f: r => r.flags.inactivo },
     { id: "errConsulta", t: "Sin respuesta de FABBRO", d: "No se pudo consultar el código", cls: "g-rev", f: r => r.flags.errConsulta },
     { id: "ok", t: "Correctos", d: "Sin incidencias", cls: "g-ok", f: r => r.estado === "ok" }
-  ];
+  ].filter(g => !CHECKS.some(c => c.id === g.id) || checks[g.id]);
 }
 function pintarGrupos2(){
   const rows = filasVisibles();
@@ -1556,8 +1540,8 @@ function fichaProducto(r, gid){
   const k = claveR(r);
   const pill = { ok: '<span class="pill p-ok">Correcto</span>', revisar: '<span class="pill p-rev">Revisar</span>', error: '<span class="pill p-err">Error</span>' }[r.estado];
   const chips = r.inc.length ? r.inc.map(i => `<span class="pill ${i.nivel === "error" ? "p-err" : "p-rev"}">${esc(i.txt)}</span>`).join("") : '<span class="pill p-ok">Sin incidencias</span>';
-  const pr = (v, falta) => r.existe !== true ? "—" : falta ? `<b class="falta">Falta</b>` : esc(eur(v));
-  const sub = (r.tipo ? `<b style="color:var(--petroleo);font-weight:700">${esc(r.tipo)}</b>${r.descF || r.sugerencia ? " · " : ""}` : "") + (r.descF ? esc(r.descF) : r.sugerencia ? "¿Quizá " + esc(r.sugerencia.codigo) + "?" : "");
+  const pr = (v, falta) => falta ? `<b class="falta">Falta</b>` : v == null ? "—" : esc(eur(v));
+  const sub = (r.tipo ? `<b style="color:var(--petroleo);font-weight:700">${esc(r.tipo)}</b>` : "") + (r.muebles && r.muebles.length ? (r.tipo ? " · " : "") + esc(r.muebles.length === 1 ? r.muebles[0] : r.muebles.length + " muebles") : "");
   return `<details class="it" data-k="${esc(k)}" ${abiertos.has(k) ? "open" : ""}>
     <summary><span class="chev"></span>${pill}
       <div class="nm">${esc(r.nombre)}${r.cantidad !== 1 || r.unidad ? ` <span style="font-weight:400;color:var(--suave)">× ${r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 })}${r.unidad ? " " + esc(r.unidad) : ""}</span>` : ""}${sub ? `<small>${sub}</small>` : ""}</div>
@@ -1568,45 +1552,32 @@ function fichaProducto(r, gid){
     ${detalleProducto(r)}
   </details>`;
 }
-/* Resalta las palabras de un texto que no están en el otro */
-function resaltar(txt, otro){
-  const otras = new Set(limpiarTokens(norm(otro)));
-  return String(txt).split(/(\s+)/).map(w => {
-    const n = norm(w);
-    return n && !VACIAS.has(n) && !n.split(" ").every(x => otras.has(x)) ? `<mark>${esc(w)}</mark>` : esc(w);
-  }).join("");
-}
 function detalleProducto(r){
-  const colSim = s => s >= C.uOk ? "var(--ok)" : s >= C.uRev ? "var(--rev)" : "var(--err)";
-  let comp;
-  if (r.existe === true) {
-    comp = `<div class="cmp">
-        <span class="lb">Coohom</span><span>${r.descF ? resaltar(r.nombre, r.descF) : esc(r.nombre)}</span>
-        <span class="lb">FABBRO</span><span>${r.descF ? resaltar(r.descF, r.nombre) : '<span class="vac">Sin descripción</span>'}</span>
-      </div>` + (r.sim != null ? `<div class="simg"><div class="b"><i style="width:${r.sim}%;background:${colSim(r.sim)}"></i></div><b>${r.sim}%</b></div>
-      <div class="ayuda">Similitud. En amarillo, las palabras que no aparecen en el otro texto.</div>` : "");
-  } else {
-    comp = `<div class="cmp"><span class="lb">Coohom</span><span>${esc(r.nombre)}</span>
-      <span class="lb">FABBRO</span><span class="vac">${r.flags.sinCodigo ? "No se puede buscar: el producto no tiene código" : r.existe === "error" ? "No se pudo consultar" : "No hay ningún artículo con el código " + esc(r.codigo)}</span></div>`;
-  }
-  const sug = r.sugerencia ? `<div class="sugbox"><div class="tx">Artículo de FABBRO más parecido: <b>${esc(r.sugerencia.codigo)}</b> · ${esc(r.sugerencia.desc)} <span style="color:var(--suave)">(${r.sugerencia.sim}%)</span></div><button class="copiar" data-copiar="${esc(r.sugerencia.codigo)}">Copiar código</button></div>` : "";
+  const enF = r.existe === true ? '<span class="pill p-ok">Sí</span>' : r.existe === false ? '<span class="pill p-err">No existe</span>' : r.existe === "error" ? '<span class="pill p-rev">Sin respuesta</span>' : '<span class="vac">No se puede buscar sin código</span>';
+  const comp = `<div class="cmp">
+      <span class="lb">Nombre</span><span>${esc(r.nombre)}</span>
+      ${r.tipo ? `<span class="lb">Tipo</span><span>${esc(r.tipo)}</span>` : ""}
+      <span class="lb">Código</span><span>${r.codigo ? `<b>${esc(r.codigo)}</b> <button class="copiar" data-copiar="${esc(r.codigo)}">Copiar</button>` : '<span class="falta">Sin código</span>'}</span>
+      <span class="lb">FABBRO</span><span>${enF}</span>
+      <span class="lb">Cantidad</span><span>${r.unidad ? r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " " + esc(r.unidad) : uds(r.cantidad)}</span>
+      ${r.muebles && r.muebles.length ? `<span class="lb">Muebles</span><span>${r.muebles.slice(0, 12).map(esc).join("<br>")}${r.muebles.length > 12 ? "<br>…" : ""}</span>` : ""}
+    </div>`;
   let precios = "";
   if (r.existe === true) {
     const nd = r.flags.compraNoDisp, okC = !r.flags.sinCompra, okV = !r.flags.sinVenta;
-    const margen = !nd && okC && okV && r.compra != null && r.venta != null ? r.venta - r.compra : null;
+    const margen = !nd && r.compra != null && r.venta != null ? r.venta - r.compra : null;
     const pct = margen != null && r.venta ? Math.round(margen / r.venta * 1000) / 10 : null;
     precios = `<div class="precios">
-      <div class="${okC ? "" : "mal"}"><em>Precio de compra</em>${nd ? '<b style="color:var(--suave)">—</b><div class="ayuda" style="margin:0">No disponible en la API</div>' : `<b>${okC ? esc(eur(r.compra)) : "Falta"}</b>`}</div>
-      <div class="${okV ? "" : "mal"}"><em>Precio de venta${r.ventaFicha !== undefined ? " (tarifa)" : ""}</em><b>${okV ? esc(eur(r.venta)) : "Falta"}</b>${r.ventaFicha != null && r.ventaFicha !== r.venta ? `<div class="ayuda" style="margin:0">En la ficha del artículo: ${esc(eur(r.ventaFicha))}</div>` : ""}</div>
+      <div class="${okC ? "" : "mal"}"><em>Precio de compra</em>${nd ? '<b style="color:var(--suave)">—</b><div class="ayuda" style="margin:0">No disponible en la API</div>' : `<b>${okC ? (r.compra == null ? "—" : esc(eur(r.compra))) : "Falta"}</b>`}</div>
+      <div class="${okV ? "" : "mal"}"><em>Precio de venta${r.ventaFicha !== undefined ? " (tarifa)" : ""}</em><b>${okV ? (r.venta == null ? "—" : esc(eur(r.venta))) : "Falta"}</b>${r.ventaFicha != null && r.ventaFicha !== r.venta ? `<div class="ayuda" style="margin:0">En la ficha del artículo: ${esc(eur(r.ventaFicha))}</div>` : ""}</div>
       <div><em>Diferencia</em><b>${margen != null ? esc(eur(margen)) : "—"}</b>${pct != null ? `<div class="ayuda" style="margin:0">${pct.toLocaleString("es-ES")} % sobre venta</div>` : ""}</div>
     </div>`;
   } else precios = `<div class="ayuda" style="margin:0">Sin artículo en FABBRO no hay precios que mostrar.</div>`;
   const incs = r.inc.length ? r.inc.map(i => `<li class="${i.nivel === "error" ? "" : "rev"}">${esc(i.txt)}</li>`).join("") : `<li class="ok">Sin incidencias</li>`;
   return `<div class="det">
-    <div class="bloq"><h4>Nombre y descripción</h4>${comp}${sug}</div>
+    <div class="bloq"><h4>Pieza</h4>${comp}</div>
     <div class="bloq"><h4>Precios en FABBRO</h4>${precios}<ul class="lista-inc">${incs}</ul>
-      <div class="meta-it">${r.codigo ? `Código <b>${esc(r.codigo)}</b> <button class="copiar" data-copiar="${esc(r.codigo)}">Copiar</button> · ` : ""}${r.unidad ? r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " " + esc(r.unidad) : uds(r.cantidad)} · ${esc(r.archivos)}</div>
-      ${r.muebles && r.muebles.length ? `<div class="meta-it" style="margin-top:6px">Aparece en ${r.muebles.length === 1 ? "el mueble" : r.muebles.length + " muebles"}: ${r.muebles.slice(0, 8).map(esc).join(" · ")}${r.muebles.length > 8 ? " …" : ""}</div>` : ""}
+      <div class="meta-it">${esc(r.archivos)}</div>
     </div>
   </div>`;
 }
@@ -1631,15 +1602,15 @@ const ST = { cab: 1, tit: 2, ok: 3, revisar: 4, error: 5, eur: 6, pct: 7, neg: 8
 function filaDetalle(r){
   const est = { ok: "Correcto", revisar: "Revisar", error: "Error" }[r.estado];
   const existe = r.existe === true ? "Sí" : r.existe === false ? "No" : r.existe === "error" ? "Sin respuesta" : "—";
-  const pr = (v, falta) => r.existe !== true ? "" : falta ? { v: v == null ? "Falta" : v, s: v == null ? ST.error : ST.falta } : { v, s: ST.eur };
+  const pr = (v, falta) => falta ? { v: v == null ? "Falta" : v, s: v == null ? ST.error : ST.falta } : v == null ? "" : { v, s: ST.eur };
   return [ { v: est, s: ST[r.estado] }, ...(hayTipos() ? [r.tipo] : []), r.nombre, r.cantidad, r.codigo ? { v: r.codigo, s: ST.neg } : { v: "Sin código", s: ST.error },
-    existe, r.descF, r.sim == null ? "" : { v: r.sim / 100, s: ST.pct }, r.flags.compraNoDisp && r.existe === true ? { v: "No disponible", s: ST.sub } : pr(r.compra, r.flags.sinCompra), pr(r.venta, r.flags.sinVenta),
-    r.inc.map(i => i.txt).join(" · ") || "Sin incidencias", r.sugerencia ? `${r.sugerencia.codigo} · ${r.sugerencia.desc} (${r.sugerencia.sim}%)` : "",
+    existe, r.flags.compraNoDisp && r.existe === true ? { v: "No disponible", s: ST.sub } : pr(r.compra, r.flags.sinCompra), pr(r.venta, r.flags.sinVenta),
+    r.inc.map(i => i.txt).join(" · ") || "Sin incidencias",
     ...(hayMuebles() ? [r.unidad, (r.muebles || []).join(" | ")] : []), r.archivos ];
 }
 function construirLibro(){
-  const cab = ["Estado", ...(hayTipos() ? ["Tipo"] : []), "Producto (Coohom)", "Uds.", "Código", "En FABBRO", "Descripción FABBRO", "Similitud", "Precio compra", "Precio venta", "Incidencias", "Sugerencia de FABBRO", ...(hayMuebles() ? ["Unidad", "Muebles"] : []), "Archivo"].map(v => ({ v, s: ST.cab }));
-  const anchos = [12, ...(hayTipos() ? [14] : []), 40, 8, 16, 12, 40, 11, 14, 14, 44, 44, ...(hayMuebles() ? [8, 50] : []), 26];
+  const cab = ["Estado", ...(hayTipos() ? ["Tipo"] : []), "Producto (Coohom)", "Uds.", "Código", "En FABBRO", "Precio compra", "Precio venta", "Incidencias", ...(hayMuebles() ? ["Unidad", "Muebles"] : []), "Archivo"].map(v => ({ v, s: ST.cab }));
+  const anchos = [12, ...(hayTipos() ? [14] : []), 40, 8, 16, 12, 14, 14, 44, ...(hayMuebles() ? [8, 50] : []), 26];
   const n = resultados.length, c = { ok: 0, revisar: 0, error: 0 }; resultados.forEach(r => c[r.estado]++);
   const resumen = [
     [{ v: "Comprobador de códigos y precio de FABBRO", s: ST.tit }],
@@ -1648,7 +1619,7 @@ function construirLibro(){
     [{ v: "Proyecto", s: ST.neg }, info.archivos],
     [{ v: "Fecha", s: ST.neg }, info.fecha.toLocaleString("es-ES")],
     [{ v: "Fuente FABBRO", s: ST.neg }, info.origen],
-    [{ v: "Criterio descripción", s: ST.neg }, `Coincide ≥ ${C.uOk} % · revisar ${C.uRev}–${C.uOk - 1} % · no coincide < ${C.uRev} %`],
+    [{ v: "Comprobaciones", s: ST.neg }, checksActivos()],
     ...(resultados.some(r => r.flags.compraNoDisp) ? [[{ v: "Precio de compra", s: ST.neg }, "No comprobado (no disponible en la API de FABBRO)"]] : []),
     [],
     [{ v: "Estado", s: ST.cab }, { v: "Productos", s: ST.cab }, { v: "% del total", s: ST.cab }],
@@ -1658,7 +1629,7 @@ function construirLibro(){
     [{ v: "Total", s: ST.neg }, { v: n, s: ST.neg }, { v: 1, s: ST.pct }],
     [],
     [{ v: "Incidencia", s: ST.cab }, { v: "Productos", s: ST.cab }, { v: "% del total", s: ST.cab }],
-    ...FILTROS.filter(f => !["todos", "ok"].includes(f.id) && !(f.ocultarSi0 && !resultados.filter(f.f).length)).map(f => {
+    ...FILTROS.filter(f => !["todos", "ok"].includes(f.id) && !(f.chk && !checks[f.chk]) && !(f.ocultarSi0 && !resultados.filter(f.f).length)).map(f => {
       const v = resultados.filter(f.f).length; return [f.l, v, { v: n ? v / n : 0, s: ST.pct }];
     })
   ];
@@ -1847,7 +1818,7 @@ $("#btnDemo").onclick = () => {
 (async () => {
   leerEnlaceAcceso();
   await cargarConfig();
-  pintarAvisos();
+  pintarAvisos(); pintarChecks();
 })();
 </script>
 </body>

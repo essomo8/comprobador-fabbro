@@ -4,7 +4,6 @@ Herramienta web para revisar un proyecto exportado de Coohom (JSON) contra el ma
 
 - productos sin código,
 - códigos que no existen en FABBRO,
-- descripciones de FABBRO que no coinciden con el nombre de Coohom,
 - artículos sin precio de compra o sin precio de venta.
 
 Muestra el resultado en pantalla, deja ver el Excel antes de descargarlo y genera el `.xlsx` en el propio navegador. No necesita servidor ni instalación.
@@ -32,7 +31,7 @@ La app ya viene configurada para la API pública de FABBRO (`https://api.fabbroa
 
 | Permiso | Para qué |
 |---|---|
-| `products:read` | Leer el catálogo: si el código existe, descripción, precio de venta de la ficha, si está activo. |
+| `products:read` | Leer el catálogo: si el código existe, precio de venta de la ficha y si está activo. |
 | `sales-orders:read` | Enviar el JSON de Coohom a `kitchen-orders/preview` (valora el diseño sin crear pedido). |
 | `costs:read` | Leer el precio de compra (`unitCost`). Sin este permiso, FABBRO lo devuelve siempre vacío y la app avisa de que no se ha comprobado. |
 
@@ -42,7 +41,7 @@ La clave va en la cabecera `x-api-key`, sin prefijo.
 
 1. Envía el JSON a `POST /kitchen-orders/preview` con `{ filename, format: "applet-json", design }` (si FABBRO rechaza ese formato, prueba `param-model`).
 2. Toma cada componente de `data.price.breakdown`: tableros, cantos, herrajes… con su código, nombre en el diseño, tipo, unidad, cantidad, precio de la tarifa de venta y el mueble en el que aparece.
-3. Descarga el catálogo `GET /products?limit=200` siguiendo `meta.nextCursor` y cruza cada código: existe o no, descripción, precio de compra, activo o inactivo.
+3. Descarga el catálogo `GET /products?limit=200` siguiendo `meta.nextCursor` y cruza cada código: existe o no, precio de compra y si está activo.
 
 Los otros dos modos (catálogo completo leyendo el JSON con la app, o código a código con `/products?code={codigo}`) siguen disponibles en Configuración.
 
@@ -81,19 +80,21 @@ Mientras tanto, se puede trabajar con una exportación de artículos de FABBRO (
 ## Trabajar las correcciones
 
 1. Carga el JSON y pulsa **Comprobar productos**.
-2. Revisa por estado, por incidencia o por tipo (tablero, canto, herraje). Abre cada ficha para ver la comparación de textos, los precios y el artículo sugerido (con botón para copiar su código).
+2. Activa en «Qué comprobar» lo que quieras revisar. Revisa por estado, por incidencia o por tipo (tablero, canto, herraje) y abre cada ficha para ver la pieza, en qué muebles aparece y sus precios.
 3. Corrige en FABBRO o en Coohom.
 4. Pulsa **Volver a comprobar**: vuelve a leer FABBRO con el mismo proyecto, mantiene abiertas las fichas y te dice cuántas incidencias quedan y cuántas se han corregido.
 
-## Criterio de las descripciones
+## Qué comprobar
 
-La similitud entre el nombre de Coohom y la descripción de FABBRO va de 0 a 100 %. No tiene en cuenta mayúsculas, acentos, el orden de las palabras ni palabras como «de», «con» o «cm».
+En la pantalla Comprobar, la tarjeta **Qué comprobar** tiene un interruptor por comprobación:
 
-- Coincide: 85 % o más (configurable).
-- A revisar: entre 60 % y 84 % (configurable).
-- No coincide: por debajo de 60 %.
+- Código puesto
+- El código existe en FABBRO
+- Precio de compra
+- Precio de venta
+- Artículo activo
 
-Cuando falta el código o no existe, la app propone el artículo de FABBRO con la descripción más parecida (solo en el modo de catálogo completo).
+Se guardan en cada navegador. Al cambiarlos con resultados en pantalla, se recalculan al momento sin volver a consultar FABBRO, y el Excel refleja solo las comprobaciones activas.
 
 ## Seguridad
 
