@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comprobador de códigos y precio de FABBRO · SOLA</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23353535'/%3E%3Cpath d='M18 33l9 9 19-20' stroke='%23c4c0b3' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gris:#353535; --blanco:#ffffff; --beige:#c4c0b3; --oliva:#4f5548; --petroleo:#4b6a79;
+    --fondo:#f4f3ef; --linea:#e2dfd6; --suave:#8a877e; --beige-cl:#ebe9e2;
+    --ok-bg:#e3e6dd; --ok-tx:#4f5548; --ok:#4f5548;
+    --rev-bg:#efe6cf; --rev-tx:#76642f; --rev:#c9a94f;
+    --err-bg:#f0d9d3; --err-tx:#8a3b2e; --err:#b5574a;
+    --sombra:0 1px 2px rgba(53,53,53,.06),0 8px 24px rgba(53,53,53,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:Lato,system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;color:var(--gris);background:var(--fondo);line-height:1.45}
+  h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;margin:0}
+  button,input,select{font-family:inherit;font-size:14px;color:inherit}
+  code{font-size:12.5px;background:var(--beige-cl);padding:1px 5px;border-radius:2px}
+  [hidden]{display:none!important}
+
+  /* ---------- Cabecera ---------- */
+  header{background:var(--gris);color:var(--blanco);position:sticky;top:0;z-index:20}
+  .hd{max-width:1400px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .hd img{height:32px;width:auto;display:block}
+  .barra{width:2px;height:38px;background:var(--blanco);transform:skewX(-20deg);opacity:.9}
+  .hd .tit{font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;font-weight:600;line-height:1.1}
+  .hd .tit em{font-style:italic;font-weight:400}
+  .hd .sp{flex:1}
+  nav{display:flex;gap:4px;background:rgba(255,255,255,.08);padding:4px;border-radius:4px}
+  nav button{border:0;background:transparent;color:#fff;padding:8px 14px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;letter-spacing:.3px;opacity:.75}
+  nav button:hover{opacity:1}
+  nav button.on{background:#fff;color:var(--gris);opacity:1}
+  nav svg{width:16px;height:16px}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:6px 10px;border-radius:20px;background:rgba(255,255,255,.08);white-space:nowrap}
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--beige)}
+  .chip.ok .dot{background:#9fb38a}
+  .chip.err .dot{background:#e08b7c}
+  .demo-tag{background:var(--beige);color:var(--gris);font-size:11px;font-weight:700;padding:4px 10px;border-radius:2px;letter-spacing:.6px;text-transform:uppercase}
+
+  main{max-width:1400px;margin:0 auto;padding:26px 28px 60px}
+
+  /* ---------- Bloques comunes ---------- */
+  .card{background:var(--blanco);border:1px solid var(--linea);border-radius:6px;padding:22px 24px;margin-bottom:20px;box-shadow:var(--sombra)}
+  .card h2{font-size:23px;margin-bottom:4px}
+  .card .desc{color:var(--suave);font-size:13px;margin:0 0 14px}
+  label.f{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--suave);margin:14px 0 5px}
+  input[type=text],input[type=password],input[type=search],input[type=number],select{width:100%;padding:9px 11px;border:1px solid var(--linea);border-radius:3px;background:#fff;outline:none}
+  input:focus,select:focus{border-color:var(--petroleo);box-shadow:0 0 0 3px rgba(75,106,121,.12)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:150px}
+  .seg{display:inline-flex;border:1px solid var(--linea);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+  .seg button{border:0;background:#fff;padding:8px 14px;cursor:pointer}
+  .seg button+button{border-left:1px solid var(--linea)}
+  .seg button.on{background:var(--gris);color:#fff}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:12px;cursor:pointer}
+  .chk input{accent-color:var(--petroleo)}
+  .ayuda{font-size:12px;color:var(--suave);margin-top:6px}
+
+  .btn{border:1px solid var(--gris);background:var(--gris);color:#fff;padding:10px 18px;border-radius:3px;cursor:pointer;font-weight:700;letter-spacing:.2px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:14px}
+  .btn:hover{background:#222}
+  .btn.sec{background:#fff;color:var(--gris)}
+  .btn.sec:hover{background:var(--fondo)}
+  .btn.acc{background:var(--petroleo);border-color:var(--petroleo)}
+  .btn.acc:hover{background:#3d5866}
+  .btn.peq{padding:7px 12px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn svg{width:17px;height:17px}
+  .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+
+  .estado{font-size:13px;padding:10px 12px;border-radius:3px;margin-top:14px;white-space:pre-line}
+  .estado:empty{display:none}
+  .estado.ok{background:var(--ok-bg);color:var(--ok-tx)}
+  .estado.err{background:var(--err-bg);color:var(--err-tx)}
+  .estado.info{background:var(--fondo);color:var(--gris)}
+
+  details.ajustes{margin-top:16px;border-top:1px solid var(--linea);padding-top:12px}
+  summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--petroleo)}
+  pre{background:var(--fondo);padding:10px;border-radius:3px;font-size:12px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0}
+
+  .aviso{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--linea);border-left:4px solid var(--rev);border-radius:6px;padding:14px 18px;margin-bottom:20px;box-shadow:var(--sombra);flex-wrap:wrap}
+  .aviso.err{border-left-color:var(--err)}
+  .aviso .tx{flex:1;min-width:240px;font-size:14px}
+  .aviso .tx b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:19px}
+  .aviso input{max-width:260px}
+
+  /* ---------- Vista Comprobar ---------- */
+  .hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px}
+  @media(max-width:980px){.hero{grid-template-columns:1fr}}
+  .drop{border:1.5px dashed var(--beige);border-radius:6px;padding:42px 18px;text-align:center;cursor:pointer;transition:.15s;background:#fbfaf7}
+  .drop:hover,.drop.over{border-color:var(--petroleo);background:#f1f4f5}
+  .drop svg{width:40px;height:40px;color:var(--beige);margin-bottom:6px}
+  .drop .big{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+  .drop .small{font-size:13px;color:var(--suave);margin-top:4px}
+  .files{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .files span{font-size:12.5px;background:var(--beige-cl);padding:5px 10px;border-radius:20px}
+  .pasos{list-style:none;margin:0;padding:0;counter-reset:p}
+  .pasos li{counter-increment:p;display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--linea);font-size:14px}
+  .pasos li:last-child{border-bottom:0}
+  .pasos li::before{content:counter(p);flex:0 0 24px;height:24px;border-radius:50%;background:var(--petroleo);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .grupos{margin-top:8px;max-height:190px;overflow:auto;border:1px solid var(--linea);border-radius:3px}
+  .grupo{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-bottom:1px solid var(--linea);font-size:13px;cursor:pointer}
+  .grupo:last-child{border-bottom:0}
+  .grupo .ej{color:var(--suave);font-size:12px}
+
+  /* Resultados */
+  #resultados{margin-top:8px}
+  .res-hd{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .res-hd h2{font-size:30px}
+  .res-hd .meta{color:var(--suave);font-size:13px}
+  .res-hd .sp{flex:1}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+  .kpi{background:#fff;border:1px solid var(--linea);border-left:4px solid var(--beige);border-radius:4px;padding:12px 14px;cursor:pointer;transition:.12s;text-align:left;box-shadow:var(--sombra)}
+  .kpi:hover{border-color:var(--gris)}
+  .kpi.on{outline:2px solid var(--gris);outline-offset:-1px}
+  .kpi .v{font-family:"Cormorant Garamond",Georgia,serif;font-size:36px;font-weight:600;line-height:1}
+  .kpi .l{font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--suave);margin-top:6px;font-weight:700}
+  .kpi.k-ok{border-left-color:var(--ok)} .kpi.k-rev{border-left-color:var(--rev)} .kpi.k-err{border-left-color:var(--err)} .kpi.k-tot{border-left-color:var(--petroleo)}
+  .kpi.zero .v{color:var(--beige)}
+  .barra-ok{height:8px;border-radius:4px;overflow:hidden;display:flex;background:var(--linea);margin:-4px 0 18px}
+  .barra-ok span{display:block;height:100%}
+  .tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .tools input[type=search]{max-width:340px}
+  .tools .cnt{font-size:13px;color:var(--suave)}
+  .tw{overflow:auto;border:1px solid var(--linea);border-radius:6px;background:#fff;max-height:70vh;box-shadow:var(--sombra)}
+  table.res{border-collapse:collapse;width:100%;font-size:13.5px}
+  table.res thead th{position:sticky;top:0;background:var(--gris);color:#fff;text-align:left;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;white-space:nowrap;cursor:pointer;user-select:none;z-index:1}
+  table.res tbody td{padding:9px 12px;border-bottom:1px solid var(--linea);vertical-align:top}
+  table.res tbody tr:hover td{background:#faf9f6}
+  td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  td.cod{font-weight:700;white-space:nowrap}
+  .falta{color:var(--err-tx);font-weight:700}
+  .pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:2px;white-space:nowrap}
+  .p-ok{background:var(--ok-bg);color:var(--ok-tx)} .p-rev{background:var(--rev-bg);color:var(--rev-tx)} .p-err{background:var(--err-bg);color:var(--err-tx)} .p-na{background:var(--fondo);color:var(--suave)}
+  .sim{display:flex;align-items:center;gap:8px;min-width:110px}
+  .sim .b{flex:1;height:6px;background:var(--linea);border-radius:3px;overflow:hidden}
+  .sim .b i{display:block;height:100%}
+  .sim .t{font-size:12px;font-weight:700;width:36px;text-align:right}
+  .inc{display:flex;flex-direction:column;gap:3px}
+  .sug{font-size:12px;color:var(--petroleo);margin-top:4px}
+  .vacio{padding:40px;text-align:center;color:var(--suave)}
+
+  .tools .sp{flex:1}
+  .seg-vista button{font-size:13px;padding:7px 12px}
+  /* Grupos desplegables */
+  .grp{background:#fff;border:1px solid var(--linea);border-radius:6px;margin-bottom:14px;box-shadow:var(--sombra);overflow:hidden}
+  .grp>summary,.it>summary{color:var(--gris);font-weight:400;font-size:14px}
+  .grp>summary{list-style:none;display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer;user-select:none;border-left:5px solid var(--beige)}
+  .grp>summary::-webkit-details-marker,.it>summary::-webkit-details-marker{display:none}
+  .grp.g-err>summary{border-left-color:var(--err)} .grp.g-rev>summary{border-left-color:var(--rev)} .grp.g-ok>summary{border-left-color:var(--ok)}
+  .grp>summary:hover{background:#fbfaf7}
+  .chev{width:22px;height:22px;border-radius:50%;background:var(--beige-cl);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;transition:transform .18s}
+  .chev::before{content:"";width:6px;height:6px;border-right:2px solid var(--gris);border-bottom:2px solid var(--gris);transform:rotate(-45deg) translate(-1px,-1px)}
+  details[open]>summary .chev{transform:rotate(90deg)}
+  .gt{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;font-weight:600}
+  .gd{font-size:12.5px;color:var(--suave)}
+  .gn{margin-left:auto;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;font-weight:600}
+  .gu{font-size:12px;color:var(--suave);min-width:70px;text-align:right}
+  .items{border-top:1px solid var(--linea)}
+  .it{border-bottom:1px solid var(--linea)}
+  .it:last-child{border-bottom:0}
+  .it>summary{list-style:none;display:grid;grid-template-columns:22px 86px minmax(180px,1.6fr) 120px minmax(160px,1.4fr) 200px;gap:14px;align-items:center;padding:11px 18px;cursor:pointer}
+  .it>summary:hover{background:#faf9f6}
+  .it[open]>summary{background:#f7f6f2}
+  .it .chev{width:20px;height:20px;background:transparent;border:1px solid var(--linea)}
+  .it .nm{font-weight:700;font-size:14px;line-height:1.3}
+  .it .nm small{display:block;font-weight:400;color:var(--suave);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .it .cd{font-weight:700;font-size:13px;letter-spacing:.3px}
+  .it .chips{display:flex;flex-wrap:wrap;gap:4px}
+  .it .pr{display:flex;gap:14px;justify-content:flex-end;font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .it .pr span{display:flex;flex-direction:column;align-items:flex-end}
+  .it .pr em{font-style:normal;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--suave)}
+  @media(max-width:1100px){.it>summary{grid-template-columns:22px 80px 1fr 110px}.it .chips,.it .pr{display:none}}
+  .det{padding:6px 18px 20px 58px;background:#f7f6f2;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;animation:fade .18s ease}
+  @media(max-width:900px){.det{grid-template-columns:1fr;padding-left:18px}}
+  .bloq{background:#fff;border:1px solid var(--linea);border-radius:4px;padding:14px 16px}
+  .bloq h4{margin:0 0 10px;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--suave)}
+  .cmp{display:grid;grid-template-columns:78px 1fr;gap:8px 12px;align-items:baseline;font-size:14px}
+  .cmp .lb{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--suave)}
+  .cmp mark{background:var(--rev-bg);color:var(--rev-tx);padding:0 3px;border-radius:2px}
+  .cmp .vac{color:var(--suave);font-style:italic}
+  .simg{display:flex;align-items:center;gap:12px;margin-top:14px}
+  .simg .b{flex:1;height:8px;background:var(--linea);border-radius:4px;overflow:hidden}
+  .simg .b i{display:block;height:100%}
+  .simg b{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;line-height:1}
+  .precios{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .precios div{border:1px solid var(--linea);border-radius:4px;padding:10px 12px}
+  .precios em{display:block;font-style:normal;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--suave)}
+  .precios b{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;font-weight:600}
+  .precios .mal{background:var(--err-bg);border-color:#e8c4bb}
+  .precios .mal b{color:var(--err-tx)}
+  .lista-inc{margin:12px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+  .lista-inc li{font-size:13px;display:flex;gap:8px;align-items:flex-start}
+  .lista-inc li::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;margin-top:5px;background:var(--err)}
+  .lista-inc li.rev::before{background:var(--rev)}
+  .lista-inc li.ok::before{background:var(--ok)}
+  .sugbox{margin-top:12px;border:1px dashed var(--petroleo);border-radius:4px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sugbox .tx{flex:1;min-width:180px}
+  .meta-it{font-size:12px;color:var(--suave);margin-top:12px}
+  .copiar{border:1px solid var(--linea);background:#fff;border-radius:3px;font-size:12px;padding:4px 9px;cursor:pointer}
+  .copiar:hover{border-color:var(--gris)}
+
+  /* ---------- Vista Configuración ---------- */
+  .cfg-hd{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .cfg-hd h1{font-size:34px}
+  .cfg-hd .sp{flex:1}
+  .origen{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--beige-cl);letter-spacing:.3px}
+  .origen.local{background:var(--rev-bg);color:var(--rev-tx)}
+  .origen.pub{background:var(--ok-bg);color:var(--ok-tx)}
+  .sucio{font-size:12.5px;color:var(--rev-tx);font-weight:700}
+  .cfg-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+  @media(max-width:980px){.cfg-grid{grid-template-columns:1fr}}
+  .card .ico{width:34px;height:34px;border-radius:50%;background:var(--beige-cl);display:inline-flex;align-items:center;justify-content:center;color:var(--petroleo);margin-bottom:8px}
+  .card .ico svg{width:18px;height:18px}
+  .card.destacada{background:linear-gradient(180deg,#fff, #fbfaf7)}
+  .compartir li{margin:6px 0;font-size:13.5px}
+
+  /* ---------- Modales ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(40,40,40,.55);display:flex;align-items:center;justify-content:center;z-index:60;backdrop-filter:blur(2px)}
+  .overlay .box{background:#fff;padding:26px 30px;border-radius:6px;min-width:340px;max-width:440px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+  .overlay .box h3{font-size:24px;margin-bottom:8px}
+  .prog{height:6px;background:var(--linea);border-radius:3px;overflow:hidden;margin-top:14px}
+  .prog i{display:block;height:100%;background:var(--petroleo);width:0;transition:width .15s}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gris);color:#fff;padding:12px 20px;border-radius:4px;font-size:14px;opacity:0;transition:.25s;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- Vista previa del Excel ---------- */
+  .pv{position:fixed;inset:0;z-index:70;background:rgba(40,40,40,.6);backdrop-filter:blur(3px);display:flex;align-items:stretch;justify-content:center;padding:28px;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes sube{from{transform:translateY(14px);opacity:.4}to{transform:none;opacity:1}}
+  .pv-win{background:var(--fondo);width:100%;max-width:1500px;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:sube .22s ease}
+  .pv-top{background:var(--gris);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .pv-doc{width:46px;height:54px;border-radius:4px;background:#fff;position:relative;flex:0 0 auto;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px}
+  .pv-doc::before{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 12px 12px 0;border-color:transparent var(--gris) var(--beige) transparent}
+  .pv-doc span{font-size:10px;font-weight:700;color:#fff;background:var(--oliva);padding:2px 5px;border-radius:2px;letter-spacing:.5px}
+  .pv-name{flex:1;min-width:260px}
+  .pv-name .lb{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:600;line-height:1.1}
+  .pv-name .lb em{font-weight:400}
+  .pv-file{display:flex;align-items:center;margin-top:6px;max-width:560px}
+  .pv-file input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:3px 0 0 3px;padding:7px 10px;font-size:13px}
+  .pv-file input:focus{border-color:var(--beige);box-shadow:none}
+  .pv-file .ext{background:rgba(255,255,255,.18);padding:7px 10px;font-size:13px;border-radius:0 3px 3px 0;border:1px solid rgba(255,255,255,.18);border-left:0}
+  .pv-stats{display:flex;gap:22px}
+  .pv-stats div{text-align:right}
+  .pv-stats b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;line-height:1}
+  .pv-stats span{font-size:11px;text-transform:uppercase;letter-spacing:.6px;opacity:.7}
+  .pv-top .btn.dl{background:#fff;color:var(--gris);border-color:#fff;padding:12px 22px;font-size:15px}
+  .pv-top .btn.dl:hover{background:var(--beige-cl)}
+  .pv-x{background:transparent;border:0;color:#fff;opacity:.7;cursor:pointer;padding:6px;border-radius:3px}
+  .pv-x:hover{opacity:1;background:rgba(255,255,255,.1)}
+  .pv-x svg{width:22px;height:22px;display:block}
+  .pv-bar{display:flex;align-items:center;gap:10px;padding:10px 24px;background:#fff;border-bottom:1px solid var(--linea);font-size:13px;color:var(--suave)}
+  .pv-bar .fx{font-style:italic;font-family:"Cormorant Garamond",Georgia,serif;font-size:17px;color:var(--gris);padding:0 8px;border-right:1px solid var(--linea)}
+  .pv-bar .val{flex:1;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pv-body{flex:1;overflow:auto;background:#fff;position:relative}
+  table.xl{border-collapse:separate;border-spacing:0;font-size:12.5px;table-layout:fixed;font-family:Lato,sans-serif}
+  table.xl th,table.xl td{border-right:1px solid #e9e7e0;border-bottom:1px solid #e9e7e0;height:24px;padding:3px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0}
+  table.xl thead th{position:sticky;top:0;z-index:3;background:#f2f1ec;color:var(--suave);font-weight:700;font-size:11px;text-align:center;height:22px}
+  table.xl th.rn{position:sticky;left:0;z-index:2;background:#f2f1ec;color:var(--suave);font-weight:400;font-size:11px;text-align:center;width:44px;min-width:44px}
+  table.xl thead th.rn{z-index:4}
+  table.xl tr.fz td{position:sticky;top:23px;z-index:1}
+  table.xl tr.fz th.rn{position:sticky;top:23px;z-index:3}
+  table.xl td.sel{outline:2px solid var(--petroleo);outline-offset:-2px}
+  table.xl td{cursor:cell;background:#fff}
+  .x1{background:#353535!important;color:#fff;font-weight:700}
+  .x2{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;font-weight:700;overflow:visible!important}
+  .x3{background:var(--ok-bg)!important;color:var(--ok-tx);font-weight:700}
+  .x4{background:var(--rev-bg)!important;color:var(--rev-tx);font-weight:700}
+  .x5{background:var(--err-bg)!important;color:var(--err-tx);font-weight:700}
+  .x6,.x7,.xn{text-align:right;font-variant-numeric:tabular-nums}
+  .x8{font-weight:700}
+  .x9{color:var(--suave);overflow:visible!important}
+  .x10{background:var(--err-bg)!important;color:var(--err-tx);font-weight:700;text-align:right}
+  .x1 .fl{float:right;opacity:.6;font-size:9px;margin-left:6px}
+  .pv-tabs{display:flex;align-items:flex-end;gap:2px;padding:0 24px;background:#f2f1ec;border-top:1px solid var(--linea)}
+  .pv-tabs button{border:0;background:transparent;padding:10px 18px;cursor:pointer;font-size:13px;color:var(--suave);border-bottom:3px solid transparent;display:inline-flex;gap:8px;align-items:center}
+  .pv-tabs button.on{background:#fff;color:var(--gris);font-weight:700;border-bottom-color:var(--petroleo)}
+  .pv-tabs button i{font-style:normal;font-size:11px;background:var(--beige-cl);padding:1px 7px;border-radius:10px}
+  .pv-tabs .sp{flex:1}
+  .pv-tabs .nota{font-size:12px;color:var(--suave);padding:10px 0}
+
+  footer{text-align:center;color:var(--suave);font-size:12px;padding:20px}
+  footer em{font-family:"Cormorant Garamond",Georgia,serif;font-size:15px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAABnCAYAAAAtxNi0AAAoeklEQVR42u2dedgcVZX/P6e6EwKRLSBLWGUJsgYQZAkSkE0WZQtbSCI4jKIjzowKDCIzDjIOgoLD+BNGfwMIMi7AIPsewxp2iLIZ9iUQCCQECNm6+8wf91xyKbrfvEvd6up+q56nnmxvuqrv8j3nnvM93yNEvFQ1ARJARaTe4meGACsBK9o9HFgWqABVYDFQAz4A5gHv2D1XRLTFZ1bttw0RaTBIL1UVG38RkVrq34YC6wMbA5vYr+sCawCr2DwMA4YAAiiwEFgAvA/MBl4HXgaeBaYDzwAvicii1LMq9hn1VnNWkLGKehX1u3fYeh5UcyQRQfkjm9GAeANgU2BzA4X1DBBGBIDQ0zvVgfnAe8DbwAzgBeCvwJPA0yLycpNJrQwmsPZzEIKyqi4DjAbGADsDWxogL5vhoz8AXgH+AtwP3As8JiIfpMCaVga7vMqrvCIAtG08DUFQVTcBdgM+D3wG+JSB91I/rp/vusC8uQeBO4B7ROTZJmBd70ZvxoBZPPgZKO8GHAzsCWzYYqwbqTGWFmOuqd+Hf05azNErwBTgGuB2EZmT8u4bRZgLVfWnNo20zxalTxbl1ec5+kSk+fFzpCIyr6sAWlUroTekqhsDB9m9vR2R016wBs+XHgChJ/DWFEgkTcB/IfAocANwjYhM68mgdBEwjwImAEcAo1JjV0+Ne5anKE3dldTnvw5cC1wqIne3WkN5j52INFT1f4EdbXwqGT6iZnvgfBE5XVWr6XBTefU4P1URqanqccDpNp7VCI/y8/5V4Ho7gdY7eeAqYUxIVfdV1atUdb5+9KrZXVfVhsa9GvacxfbM9L/do6onqOqa4QY1gOvImJwPGdift1fVS1X1g+B7+/Goa3uuVvNxl6oeFeQLCL9LzsYNVb038jicm8qPlFff5ufBnNbrH9u1FmOBwqGqOjX1Jf2GbGh7r4a9x+LU37+tqheo6jYpg5N0koEMfr+5ql6WGu92gnJP87E49Z6PqepEb+zThj9HAJiSer+s7kX269klQPd7bkbbWg4dvazvut3vq+rIvJKSS7uSfoQzVETqqrqrqk4BrrCjYSMIX1SbHG/bFcLxbBAN3nEE8DXgIVW9XFV3EpG6HXUrRZiYpRlIm4PlVfVMXMx9vGdKBHOQFDDnUQ3es45LXF4C3Kuqe9k8aBs8GMnhLq/+4dMEzwYLch1Z34nhw3DgUHtupWMA2mJBdVVdSVV/gUvCjbVN1rDPqhR4IUrwjmqxrAQYZ+DwO1Xdoo0A0dt4qTeQ+wIPASfjmBj1YFF1AhhU7PZGc0fgFlW9SFXXsO9YaGNZXtEpdXVVHQYc1h+HcgA5uQn2a6MjANo8tpqqjsXRp74eJJwqBfTUeuvJEXicRwAPqupPVHVE0QDC5qChqkNU9Rxc4nOUGRotgrUfwBr0QN0AjrGTzbjAWCYlZA1a7/nzODpuIwec8c7bdqo62p+oCwvQqeP0t4DJAShIB4NCelL8kXsY8B3gYVU9vCjedHB62QBHWfvHANCqXXJ89iycGrAWcLmq/qeqDinCRimvNnhRjn45KUUFjX3VbR2Oj1UrkglAe56qAcM5wH/YyzYi0VyKANQ+9LE+8HtLvPnjdrXNNKOxVvixcxCe6UbPshqEPb4JTFbVtds5B+WVf3jD5ns1YN+cnUG/pw5T1WVs70mhADoFzv9lHlstpzhQEUIfHiDGW9jji+3grgbgfDhwC7C6vVd1EBxvK7bmdgHuUdVtbSxKkO7+y4PxwcAKwYk9r7XXwBXV7RYUVBXKg/ZhjfNxxO3FXXSU7itArA1co6o/UtUVjTctOYLzV4Df44odGl0SVuqLN13DlaRPVtXdSpAeFJcPZ0xqU5ihYafpie2uck16AIbTgOMNnIcM0oUSetOnAJtZ5WGSEzgfC/x3sGCSQToHdZyQ1g0lSHc/99lyDpsDO7QpAe7zUvur6qrmrErbATpgaxxI3LLKjlozNmGXisjU2GXJATiPAy40cJZBCs7hhqnj6ITXBOGOMnHYveyN8cG804ZQZx2nsvmldnKik1TVTkNV1wqAIRnkBHu17/8OcLJZUY1Mpaup6hjgsgCcSy7wks26vIG0TxyWFLzu4z4PxdFei5DzmthOTnTyUVaLKPD/cJV2jUHutRGMwfdF5HWLzTciHu3qqroOcCUwtAg0nwKCtKfhXWEbWcpilq7znsfilBfbiUG+cnGMqo6ysEvSlgEJuM77Awe2MbShAecxvDWm50rP6lYPAufbcboe0XMQ08y+nCVsjdI7pGXicAfgPyzcVIY6KLnPkcIcQ4Aj2+XNJ0swQqvAj3JORvlqxFrqOJ+kbgk42LXg5zUHD/qb3muOmNH1ce2fGPDU2gg6jWBOWt31Nm8eD9LHq+phZTy6q7jPqwAHUIxCOI+DRxo+5h4PrwZJqQOBrSLo4dKDSHwl9azFwBxcx5QF9m/L4riQK9G8OKMWgLpk7D2fLyIPxEwMBnHn/YBvten0ElYlJv3QO5Y25Cs8X/V8Vb0LeNMzAEq4o5PDVwfaXq8XBKAbuC5QO4nIXXlrl1cDT+hbOYURGinRoqm4Ioz7cN1Q3gLeD6gtQ3CJoU/iyONb4bqzbIOLU1VTYDFQsSDvyc8ETvXJ04hyiqqqKwG/bAOVrp46qYDrMTjd5uI1XIJ0EbAMsDIw0sZ9I5xGQtbj35fNU8f1TzxPRA4vvWi6gfs8saB5qAnAXXnnhKoW/N4E+FwOdBJvFRcBFwMXiMijS4lHLcL1H3wbeBq4Mehx+GlgD5w84JiUAFJ/PTpPqztRROZ4kaJ4ITepq+qPcYmvvLzneur0cj9wFXAb8FTYQ7AH4zIMp8vyOTuS7obTMiFH78fnBQ5T1X1F5MZ2dmcprwFznzfBVY4WSfzLv8dBqnqiiLxr4RjNc4BOCkTeY121oJPGNilBpqoXzLc/S/Bv/k7sZ6rNPCVV3UZVf6aqbzZ5Zl/f8U+xuyr4z1bVHYPGAnk1MPC//61R+j62YWycW93NCpw2VtUzVPWNVDeVPDq2NFT1KVVdpq+VnoEo/B39XDNLu/ye+gmlYH9L7r/9+oMccGgg2HWEx6u8B+j2SIszvUj/fwBM1YHQVgLQrqZab62hqv+sqrNSbbB6C14LrYqJmLSawBjdG3ns00CmqjpZVXdoYiR7DW6p8U9S439u8H1qOW6gE/oKgiVAF6YJRVVVn87RsPd1fTVU9brYuNBscFZT1dkBSMXaPJcGwFSJBHhhf7u1ra2V9tIq+/c8M0fv+dAcwdk/58QYbb6ajP9O1s4qD4/IG5/XTS9F+mBoSoAuQOs2Vd2toOAc4uJ8VV03T5BOcMm2lYOquRgB9ieB4/yXihEjFJGGlwY0ZsqrInI8sBfw14Ca1dN7vgj8MGZiMEVr/NccErM+Hv8WsLeInO2NpG/zFWn8p1pe4DeBnkbshOEawNcsPlgmDDvrmlSULiYtONE1y7EclicnOgG2jjwwAnxbRBaahGkjNtE9BRS34dop/U/AWkmDojdO/yAi84KqylhaGw3gIGDzyAp1/rNfBXYTkcleAD9WIi0Y/4qIzBORicBZAY0qduXX36vqJ6xkuKww7Azuc9s1L/rQDmu8L0nPC6BHRaan/BnXay7JU1M5BRTviMjRwEkBu6ORYhxcKyJX58ACaNgEnxjZe/Z0wbeBL4jIE2YcFuc0/vWgI8/JwJlLOcVkxVkdCYwvvWg6Sff5izi6ZD3jU7xGaOixDbBtXp2WEpzWLpHCGwA32GZJ2lQ6GgLF2bgmsQuC9koCfAD8Q05iSA0cleizEelEYcn8uACca20o223Ys0/BUStjhjv8/H0zZml+eXUM91kihAsFODovnZwEp/sQc3CeKkJ9vwH1EBG5EtgHmB00vD1DRJ6PKYaUuo6PHFbyoY2TRGSKfe9aG7UV6gaYXwMeiSgj6cMcWwK7FrU7e3l9hPu8IU4cKWsnbjGu0CpLHR//fuNUddk82mElOOW6mNagRnGEWBYbWN2J6xY8F3gO+GlsjyuIt61uR7pY8TYfsrldRM6xZGStAAI4iMgi4Fhc8RGRTis+x3BcCYN0gnLdkTjlxqzCG97pmY4LI0rGAN0A1gH2MHCuxB6kT0QCaD8oaxUpWWMgXRWRaVaFeIwBh0auDvITeSCudL0eaczFQjjfsHFvtLttTxBqqorIn4HzbDwa3dwNo7x6diTMKToqY1aEN9D34FrFvR2crLL8/Em2rzQ2QA+LHOLYK48v0kewqNkR6xERudu820ZO8bYjIo6Fp9T9XESm5xiy6cumTHCqibMy3jhpmcgVDaSlTBYWj/tsmLATS5hMWQG0JwFcZ8n+6wPVzCwdgC+o6uqxHYCYCmTeQ9pdVbeyL1IpEEg3jA+cxPYwg3jb2rYoY7Sw8gnHd4CzvPdM8bR+ExGZY150TLqS4hKkWlBubXll363Ex7FnAnfa3/024/3mOdHL46iyUamBSeRMt+Ky9r8IWmoVCqRz8jD94tgDJ59aj5hhvkhEZhXQew69aAH+C5cDqETwor3jMVZVP2nGsQxzFIv7vEIEgKvbWrpZROYa5tyBqwPIsvhM8mqHlQDvR0zY+MTbGOCSQL3NiyPJIOptCI49EmOsvfe8GKePLEX1GgMvehbwh0hetAT9C8cWvABisF1+3+8HrJaxs+Ibe/yvlyoWkfnA1RkDqXcqdlTVzWK2w0pwsUAixkU9SB8N3KaqW4hIzcqMNVSoS6vZdZnHMNTCGzHKRH1RyhQRecYMYaMDGoReFLFs1uc99ikxsVBXI9XWKmsnZZbtgzDu/IcI68yzpY6KWfqdAC/lqNu7O/Cgqv63qu6uqsMNqD1gN4yzrE0kLyt9lZIsWInop3EC9zGLdi6z8UkK3nfOb5wHcDz5GNonPszxubJopXDc5/UMC7Jcqz68catpNleCcNpUXAOKLNdZ2A5rSKz1lQCPR/ag00nDYcBXgMnAk6p6paqeqqoHquoWqjoiFN8J7g8BPAXeRQduP5HbRTrOe8/hA1ucnZIU8yX110WK4/lx3xDY0K+bEiYLsRcONxyoRQhvXOmbMPtyf5M3uCrjdebBfiPgc7GKoqrAQ3mVLQa0qkZQZr4ucEjwM7NV9Q1ghnn3LwHP26+vAG+IyIJmA20bMAmOt1oEDrBd20euGnxIRF7roL58fl5uxBUUJJFoh1UzjtMjeerl1XeaZdal0t5JmQ1MNrCsp9bZ5bbOKhH0hiaaw0kMgH4AmAcMjyQ52szSVVKkbw3+foTdmzb5vwuBmar6Ek5C9GngCeAZ4BWzlI0merO+mqgdRRt+oWwZuSBoSsqy0yE6DA/jpFBXjbD+/Nh8FqdmWF7t5T7XVfWzwOiMVRx9PPg2EXknFDwLeMqPGFZkybv+UOxJVVeyZ2eqhFkVkRdV9S/ADpGlL3s68jRL7oTFLT5WtQwujrsesGvwfxYBr6rqU8A0m4zHgResSjCdnPqIgYgoLSpmzZcDNogE0H4Mp+YUqsqMzWHe/ruq+hiwZ4T158d66wJrDQ+Wqxk1LSEOe0OahNNqqnplxgAtQePiA1T1sqxldZPA/ZeCbG4Jun5X7f6IF2yDUrO7gavl3wDYH/gecIVZyydV9SpV/Z6q7qWqa3oZUrt9TLsaKT7pF8pIXFdyIniIiZ0snugkgE6tvwcjvbv//I1M3KbkQ7ePyVQzne5DMmY9hAVat6XYG+nT2hWRnNCw9LuRdYgDXNeLH+B0OTTv1uL9sJRL87q9l7yh3Z4Q/56qPg08CtwH3CciT4VKbxYSySoU4t91naBZQBJBe+Nl4PUOBGh/TYucB1kd1zX92QI5Igwy7nMd2BtYM+Ou7/6zJovI28303APD/Ljt/c9k+A5+P49V1Q1E5Pks80CJCdi8Cfwycultnl53pYm33cAVLmwPfBW4EPiLqj6qqmf6JqopfrZkCNAxjtgeaF4M9EW0A/WAp0fikvqCnSouLEaBnY+udqJtXX6ZbOU/exPeCMMcatGCLB0Zj5lDceyUTNdxEnT4OBOXrOmWTHcatJNANKUWWNCtgZOB+1R1qqr+raouHwJ1Bu8yMjIT4sU8+6RFeP8ZwHuRvFu/lkuAbh/3uW46NHulSAJZhTfeA25pEd5Ir4OrcBW3lQihtPEWKs3MyfWueCIib7GE7lTv4kRFMy+75ks37SQxTVX/XlWX8SJPA/SmV4/8vWZ0+LzMJn5F6zolXNLOPMM4nA5Nltxnj1NTRGRWoJLXUhzNVB7vzzhaEDaK+GyWnOgkoKJURORiXCB9SJGE9nPwsqvBcbgOfAr4Ga7qcf/Am+6vh7py5O/xZkcOvhtTsRzA25EBes0SK2mnONaECCcY/1lLC2+kjcUfIqw1D/aZfs8k1cw0Af4GxwioDhKQTo9HJfCqtwSuU9VfBCyASj+O8MtHpi7N7QL61ezIz1mlg5Oona77vK3dGiG8MQ+4aSnhjXSY42pcU4tqhHZYh5iERSbtsJImbYnexbVAnxm5wWfRgboaeNRfB+60LG1/dK2Xixz/nNfB4JM2Mhrp81coAbptc3t0BAKCB9s7RWRmT+GNJmGOl4G7IpR+1+2ktk9WjSKSJl+gYg1U98XFBSuD0JNOe9Q1XLnwXaq6TR9A2i+YoeTDhujkTbwg8nOGlwDdFu7zssBhEZLY2sfwRshck0hhDs9QmZhVF6mkRe+4iog8hlOcei4IdwzWxe2//0jgVlXdsmgdYrrgWkh8sa7yInfd572AtYN2bFk2ApkP3NjHApG6/fx1OC38LMMcvqBuL1UdaRiRZF1qHYL0E8AuwG1BUUt9EIO0L+u8TlXXCOL2vU0gxPZCO/kqy7C7k/s8KQL32a+Vu0VkRl8KQzzDQkRm4gSOsuxX6NthDQcOzeLUkCylC7P/InsD/2IP99q6g3FD+XDHuizpddZTgwH/9/Mjv9dyXQDUw0pM6zru8xq4hglZN+7VgNPcHxD0e/b3PVQnD9RZmpCF45EsTVjde4gicjqws3nTlaCgpT7IQh9VHNF9N+AkKytNljJZH0RsdQXxWCJ5Fqssk1MIpSxUITfu86E4+YhaxtKiVVzO4vp+gqAPc9yE0/CoZBzmUGA7VR090HZYSS8bq/pjwUMisheOdH5fkESToJxaB1G4419UdaNehDpi0+BGdMGYrhAZQN8rAZq8w1UxuM/+s6eKyMv90b0I8Gw2cHPGYQ6CePv4gYY5kr60KfKdS0TkShHZCTiAj3IKkwCsu9mz9iXJw4AfmjXuaRG+Ffl9Vu+CzTwisoc+pwToXNtabYXT4daChTfSYY7fRQhzfNg5RlWXCYp14gF02pu2P18vIgfhBLj/CVdCWWsiEVrrQg/bF7SMs86+PWVs34j8Lmt3IoUs0Muu4AT7YwLom5RXnuGNoyPIRvjwxiIG3irNhzlut7VRybhopQGsj2PC9duQJANp+un7AYrIdBH5sYjsaGB9AnAtrthFAl3nJCiprgWedicCd6iU9rdLGc8ZkcBHUkJAnZq4XZk4etnh9WqJnbl0aq+b13h4BO6zX98PiMgLA5H1DMIc7+Fi2RqhkCbkRJMbQIdA7YPgJnovIvKkiPxcRL6E62Q9BvhHHOvhSRyjIUmJ8TcD7jR4a4G9hYNVdViT8k5NgUMS6fnrqeonvLZFBxapjMTFoDWiEXupLFTJbT983rzHRqTilKsy3k+/z7jDeMiJ3k9VVwlab9Efwf6Bit40vHULGrc2RGQucK/d3sKuA2wCbGH3p20yVwu87J6sUiOlAyttjCv6o8x6uErDu1PHulBOcz5OzUsz7mSMeZ/r4TRUOkmQ3o/fJkEpcCUSaDxfAnRuAliTUs2hs9TeWGyn8yxOjB+Wi+MaUq8ToR3WSsCBOP35PldlVyNMUAjWEnjHaqGRl+2+NTgaDQfWsAFa3+4NcHzjkbj45Er2WUkPwB0+jxyTXIl5DXennq1BDPo1XHeXrL1ED2qjDaA7Uc97m4g0RMEJMb1cAnT0fEJdVVcD9ovAffatqh4WkWfseY0MjElVROar6rXANyJ4/Vgfxgv7sy+rRLamYVwnqJkPvd66iMzDlZQ/10wRy8D5k7i2ResDG5vXNco8x+GpQa0FR4y8juk7p6160Bi1pqrPBgAdg6Uwhs7rXO3HasdI8We/qZ8XkTlZd1wur6ZFXAdauKoemb2RlUaQBmGOb0QIcygwRlVHicj0vsbNq+R8/GkGUC2AGwuT1HFawW8DTzf5f2tZqGQMsAeO2lNNeZd5APSnTeB/YQoIvEc7DVdVFasx6q5Zd3PIweNqqOoqOCnKGDF6TfU8HMzCX3kZ20kRDUAdJ7Mgbgllkm/xOu/3Wxhsg4y96DpOX/9I4PS+nnCTosStjMJXDzpu13yzR7sTY41U7a7Y/3tVRG4SkdNEZGc76p+Bi/tWckgwSiAIv0YPnuDDkbxE381hU2DTATYWaIeYzhhgRVvIsU48U0v8zIX7vBmwUwTus18bDxkJQX0TjQzuht0LzYvOmg3l9+KRqlrtKye6SgckHVrFDpt43nUTeDpNVc/F9Ro8kSWJsxgA4D97qIH0S+lTgP36SMARjxGHruJ0vDslDq1mTA6OGBv2XPX7SkEm8kj2jg9OKdUIJ6HJqrpqhI5P/v3vxNVzVCJ89qbATiJyl4Vt610B0H0NmXgWiZVxnqyqd5hlHB4RpH2sc9UWIuECvAA8a6wVjVS5dJSq/rjoYY4gobQS8MVIcqD+mPos8NcyQUjstlZDgSMincw9Tn0T1zxDIledSqS1OJEljQLoeoDuiUVioDhERG5Q1SNYQs2JmThcvsUzKpYovAeX3Mw6U+yt9JbArsAdFgKqFzyhNA4n31qPBNCCayhas2x9GX+O09aqrqq7AhtFYkHQ4aJgfm0fpKrfFZF3e5uwTuhiPqaILFLVoSJyA3Cxfd9aRMu7NMnMW4jH2/bv8O0iMxXMcHpxqRMi5waEJSXB5RX3CrnPMZUPY9+x1mIdx0Tbry/tsJL+bLAOSUKFx68E+HkQioiVKFy8FMH+O3BdHCoRFoOPt+6vqp8pcMeXip1yDgW2iuQ9+yTVWzbmg7nRRB6hqhE44TSJzJqSHO7YxmViXzrAJP1lXHh2RQeso4YBwhM4ZodEtPJNdZ8DPvQbuGKWWJ6G2pyeWUTltoAetQyOaRMrJ+CVFG8Skbm9aShaXgM6un8Jp6dSL9UCl1r6/XlVXbe3OtFJX6g09utnVfVCL7FZdJD2+hQisggn3hSzc/Q7vWhWeUXEReyzw3uq6hE+9low77mOY9eMihiv9NWkvylxoaO5z3SZRHENFwbtdRPdpB8g9O/Asap6gXmmSQeFPJKIn6sskbTUHuQNrwHejRTmCFX2zlPV1YMQTxGSSTVV3QY4NeMmos0y5s8Bf/Ix7xIfonGfR+H6lmrZmLfXGHq0V/7LBLCCTO0k05xYAHxNVX8VKNpVCq45vByu6jBW+/e5OL2NpgAdyBvOYkniqh7RWKwGXGxGIWnnSccMRENVl8eVow+NGPPzYHyRnZrK8EZcZ+dIHC+5jPH3vvR7a+AzobZ+vwE6iBuOAM6yDTDU3PXjVPUKVR1uAF5E2p4Hp21xlX6NjIFBAznL3uo9/DKyR+9pbF9Q1bONXlZtIzj7MbkMxwOP5T17L+594KKyOIXYyfcqGbR1GmzjZvhzdG/yRL0ZVC/u8W+41kqNQM+5hsvG32ldRWpexL9YYWhRnBBKjA3rP2+aPafSiya8d+EqCyWi5+Hn57uq+h0RWew1u3MGZ7XvfSGuKKUW8SjsF/9lIvKanVhKgI4TrlJcmf4mkbnP3XryGKeqyzbRkO89QAehjR2ArwYlxWkQ2Ba4V1WPC0Ie1XYnEFV1iA3Abrgqp0ZET7K3FULe4J2bQ8bbJw1/oqonmiedC03SCkN8juIS4NgIJcDNGCyLgJ/6k1+JB1FjqRPLU0q/i8rWxiXze2wUkCwltOHlPn/ew89W7YErAr9S1WtVdQsTO1ID6qRN4LxYVdfDZfMloqe6GJjSy8XqxVIuB56JrJshQQOBs1T1Z0H5eRQD6kWtzDCuhSvOmRgZnMNOypeKyDOBISxSqK0KVAPBryLf0kNOp2Zl+gdFKtNnELBfBtYOywevVfXv1F017flqBD8zX1V/qqrrpDdubK/aP8d+v7mqPmPvVNfsL/997w+piL3xLu3XL/dybLN81ymqumn4LlnMic1tJfjzOFWdYc9cHPm7NWx+56nqen0ppgroo3dEmgv/3c/okvCGX7tH57h2u+1q2K/vGtOKVntQelq0FnN+EifA3duse1gZNgf4NfArEXkyBf4SFJFkUQDh452+m8tE4Dyc2H8sXWjvFX5XRH7aW72HQIWvgpMh3SJilWOz930f+DHwn9aW7CNz4pXmejnmEn5nVR0N/DNwSI6a3P57/ZuIfL8vOiQBXewOnI5JPUInkAS4GSfaVSl4SMDnUf4oIm+lk97BeN0M7JXTuqVLk4UV4OsickEr7JClxJ4vw2Vp+7poNTVxi4CbcFn8W0VkThNvXZrVxKcWhzQp+dRwM1q8/DRg/9QGiaV9MR8YJSIz+tItIRjjfWxs6jkt9PA5LwIXWFLt1WaqgC1kQutNfnZXXHfzw3C0qwb59Iv0z3kF2BxXzam9PTrmANCdeL0PrG1VmB8CdDBWGwBP2TxTVg8OaB/eIyK7tMIO6QE49gBuG+CC1SaJxZnAnwyU7hWRZzPwoFfE8bO/gtMEIAeA8F7bpSIyqT/qccFYX2keZ17gkDag71qPyOutwe8LxiHu6d1XM89/T1wPutEtjAA5ec8HicjVfZ2HHAG60QHJND+W54jIyWmvzv9ZVU8BfpRDXqHbL78PR4vIE81AWlocWyvAYyzRLk4yehFSi38Rro3VY3Y/heMTvwW8a10O0p7acjiJyvUMFHbF9QMcmTNA+ED/tiLy534CtC8qWQt4HCenmGeX8kaTCrC6zcELuEars82jquISwWsCn8K1BlqpyRzn2bTXA8RvRWR8f+eg9KA/dircTkQeSY9ngA+PBWG5JKKWCgXT0YgdmvtYmEOaUKNqqvo94z3HsJAa8FVbbYS5ds/DVS36d10OFw9fGVimF2AT+3jyOxE5aiDay4EXfQyuuKIdXkkrA9pbrzBpAw/Wn5BeM0M9J9ADLwG6/2v6IVxfz3R40a/TnYF7Su5z5k0lNvNSyOG4V1PeXN3iS6dGluaspiT4GgHtLzFPbcVegoPkDBBh7PnUgfJtfQWmiFysqvsCh7cBpENj2Rt93KQN497MoFSBY0Tk7YI3KOgk7/kyT49toZ0+MWJux6sb3k58Cmpf2tntD6wTqRNSA9foYFcRuT3dDquaqrhrGFd2uYjluM30XZMmC0WXQpJvFzj4mPoZIvJ8RsDgKwy/akU/G7XRk8szxDKQo+EQ4DQRua3slpIJMFZxCdYr0nz+QPd5eZawcyqRDMRiM7qvFoha+H3gh03yaVl60RPMMPGxllfB8eUgXDluO495UuDMsJ+gB3CFH5lQpgK96LmqOg6XqBtWHiN7BOfLReSMEpwzDW/cJiKvNnE6KqpaB/bFiXDFalHmc1+vqeqQAsShvTd7E3B6JEz8UFNbVVcWkY/o+SSBGNJwXPmxUtJmeop5vgdMMFDQrJTSglDHNLOmCXHb8HQqOFdxXbq/7MNy5bBkdmq6JODop5teKEvaWsVYk/4zr7M8glo1cjvvhbbPHwOmR2r24fV4RgAHpNthJUFJ7KnA+jmFNjqVDpMAk0TkmRhCPEFz06uAvwsseAnSS8D5KeBLIjI/nVAprwF5rjOBm208602SqOsCe0Rsa+WlOK+nQB3YgxPajZF1R5q2w0rMcxsNnGLxn7IqqDWX+9si8kebtHok6T0P0r/AdR6pBgyVwQ7OzwL7iMisUqkuczXGK0XkfVt72kSv53Bc2K0W4YTtT6fTgWkFa7Lgx+LaiLKq/jPHquoGYTss3w3lTbMQQ3LozNup4PwDETk3j5hnANJnAd8JvIvGIPec9xCRV0rGRpQY6G9aeK4+gX10xNyQX9c32t4qUpMF/2734SidScQwx1AzhB+CtteveF1E9sM1G/XsiFrpWYCBwyki8q95JqQCkD4HVyFJoEw32MB5KrC7iLxcgjMx9LP/DDzg2RpNdJ+3w3UBiUW99R7kNUUKb6Q6IX2Aq7aN5Sj5MRgf5lYS31TVJucUXIfeV21j1Aex15ZYyOdYETnTS2jmvDg8SF+Ey6DPCrqldLtx9DznPwB7isgbJThHO77/j4WLKi0YVRMixl99bmeGealF1JeWwIDEoqF6UsCWwA7eMCTeSnhyuohcC2yPEzaqBN60DhKvuR7EO3e3ApJqu4AhAOlbcCXt9wZx6UYXG8cEx3M+QkQ+sGRVCc7Zc58XmhFsxn2uGbvr0IjxV59fuVVE5jeJgRflpAFO8/2diA2f6ymDKEkTMKiIyEwRmQAcjIv9VVnSNly7dLHWAh2SX5sVu7cIPNtgXp4FdgPOToWitMu85hdxycAzTN9byoRgNGCcIiIvNBHq8drte+N0bmKxu7xHek1RByoIc8wG7ozo5fsTzCHW57WWtODjir3QH82bPgWXSAyButEli7QWlJ8/iVNFO0ZEZrcjrLG0foYislhETsJRnqZ1gfHUlNd8EbC9iNzi22aVVLqoR/dLWrRd0py4zxWcjsqUiJ3uMxkrG6drIs9HHdfcem9VlaSVxTBAqIjIPBE5EydIc0YA1EkQEtAOZGbUg+a3rwEnGTBc7Tu/FO1IbfQbbzwnAzsC38MpznUaUKeN42PAfiLyFROKr5QVgtFF+WcB17fgPtetZdneEbnP/pl3WAVdpcDG2DsKt+AE3CoRjZZaMVzPbYFS3vRMETkN2MrA7KkgJCAB6GmBQbkWLLYKLs58sumxnm2xzoo1vtWiHrcC47lARP4dl2E/jyWyoOF8FN04vgicYCGlG9tsHHWQ3H6fXm3yApUW3OdDcbo8tSYNNQZ6h9e1LSoYi+YcJSLyCk7qIRzHLG9vCPdU1bWlj22lPvRqVHUosA+u48o+OAnQZpKi4d2OTZYWVVqAaxjwa+AaX5HmdTU66TjdZE42BI7HKY6tzscTb+3YBBrEO0Ohmb/iurlcFLbdyhuYm8iNDgb9Ey/nMFZE7mym+2xx1wdxFLuYY7IA2Ng0QJIi5xoCOebv4vJAMZs7JMDJMlBQsL9bwzprHADsghOg70mEOw3a0g9qkPJx5btWR7E5ZvWuw5Hhn0s1wax3cpzTxxD9JlPVVXGtpyYAO6XGtx4YrhiAHQJyej4WApOBi804Lmi3cQwAegow1oxZZRCUdj8ObJNe+8F4bAfcT7ziFM+Wuk1E9io6OKfGZjPgUZYU9kWrrJQMGrWSsr4r2MTvYuCwJU5LVfrg/Q5U4W4GrlPLgzhx8QdF5I2U9rV0msfcyw4t6WKDrXHc9v1wUqZDeogF0kvD2cxISgsv6wObh2uBa0VkehGNo2lNDA82Rzd7zwkwR0RmNmkK673nEXYKizUe/j3estJ96bDT60ZmYGKKyyWSpQeXBmv7t2E4EaZRwCbAxrh2VWviWletgKvxr/bhSDQPx0d8E5fge8limc8DzwEvW+VPsyaojW6nbAWKWGnvaEMzmrsYWG+IU9HK8pqFE1t/GLgLuF9EXu5241he5UXECpnMj9vNOm43+bkVcH3tVsT141seWBbXzkoCd3++gfK7BsxzgbnpnoUtAFkHMxgE4/AxT1VVR5rh3NSM56csPLWqzU16LmoWpvBzMctOKy+Y0M1TwDMi8mYLg1FY4+jFaQbV5u9hLnJM2mkn7s281sv/AZsCtZg6meLvAAAAAElFTkSuQmCC" alt="SOLA">
+    <div class="barra"></div>
+    <div class="tit">Comprobador de códigos y <em>precio</em> de FABBRO</div>
+    <span class="demo-tag" id="demoTag" hidden>Modo demostración</span>
+    <div class="sp"></div>
+    <span class="chip" id="chipConn"><span class="dot"></span><span id="chipTxt">Sin configurar</span></span>
+    <nav>
+      <button data-v="comprobar" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Comprobar</button>
+      <button data-v="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuración</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- =================================================== COMPROBAR -->
+<section id="vComprobar">
+  <div class="aviso err" id="avisoConfig" hidden>
+    <div class="tx"><b>La conexión con FABBRO no está configurada</b>Pide a quien administra la herramienta que la configure, o hazlo tú en Configuración.</div>
+    <button class="btn sec" data-ir="config">Ir a Configuración</button>
+  </div>
+  <div class="aviso" id="avisoClave" hidden>
+    <div class="tx"><b>Introduce tu clave de acceso a FABBRO</b>Solo hace falta una vez: se guarda en este navegador.</div>
+    <input type="password" id="claveRapida" placeholder="Clave de acceso" autocomplete="off">
+    <button class="btn" id="btnClaveRapida">Guardar clave</button>
+  </div>
+
+  <div class="hero">
+    <div class="card">
+      <h2>Proyecto de Coohom</h2>
+      <p class="desc">Carga el JSON exportado de Coohom. Puedes cargar varios a la vez.</p>
+      <div class="drop" id="drop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
+        <div class="big">Arrastra aquí el JSON de Coohom</div>
+        <div class="small">o haz clic para elegirlo</div>
+      </div>
+      <input type="file" id="fileJson" accept=".json,application/json" multiple hidden>
+      <div class="files" id="filesInfo"></div>
+
+      <details class="ajustes" id="detLectura" hidden>
+        <summary>Cómo se lee este JSON</summary>
+        <div class="row">
+          <div><label class="f">Campo nombre</label><select id="selNombre"></select></div>
+          <div><label class="f">Campo código</label><select id="selCodigo"></select></div>
+          <div><label class="f">Campo cantidad</label><select id="selCant"></select></div>
+        </div>
+        <label class="f">Dónde están los productos <span style="text-transform:none;font-weight:400" id="grpInfo"></span></label>
+        <div class="grupos" id="grupos"></div>
+      </details>
+
+      <div class="acts">
+        <button class="btn acc" id="btnComprobar" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Comprobar productos</button>
+        <button class="btn sec" id="btnDemo">Ver con datos de ejemplo</button>
+      </div>
+      <div class="estado" id="estJson"></div>
+    </div>
+
+    <div class="card">
+      <h2>Qué se comprueba</h2>
+      <p class="desc">Cada producto del proyecto se cruza con el maestro de artículos de FABBRO.</p>
+      <ol class="pasos">
+        <li><div>Que el producto tenga código puesto en Coohom.</div></li>
+        <li><div>Que ese código exista en FABBRO.</div></li>
+        <li><div>Que la descripción de FABBRO coincida con el nombre de Coohom <span class="ayuda" style="display:block;margin-top:2px" id="txtUmbral"></span></div></li>
+        <li><div id="txtPrecios">Que el artículo tenga precio de compra y precio de venta.</div></li>
+      </ol>
+      <p class="ayuda" style="margin-top:12px">Al terminar puedes ver el Excel en pantalla y descargarlo.</p>
+    </div>
+  </div>
+
+  <section id="resultados" hidden>
+    <div class="res-hd">
+      <div>
+        <h2>Resultado de la comprobación</h2>
+        <div class="meta" id="resMeta"></div>
+      </div>
+      <div class="sp"></div>
+      <button class="btn sec" id="btnRecomprobar" title="Vuelve a leer FABBRO con el mismo proyecto, después de corregir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Volver a comprobar</button>
+      <button class="btn acc" id="btnVerExcel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>Ver y descargar Excel</button>
+    </div>
+    <div class="aviso" id="avisoCostes" hidden style="margin-bottom:16px">
+      <div class="tx"><b>El precio de compra no se ha comprobado</b>Ningún artículo del catálogo trae precio de compra (<code>unitCost</code>). Añade el permiso <code>costs:read</code> a la clave en FABBRO → Ajustes → API y webhooks.</div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="barra-ok" id="barraOk"></div>
+    <div class="tools">
+      <input type="search" id="buscar" placeholder="Buscar por nombre, código o descripción…">
+      <span class="cnt" id="cnt"></span>
+      <span class="sp"></span>
+      <div class="seg seg-vista" id="segVista">
+        <button data-vr="estado">Por estado</button>
+        <button data-vr="incidencia">Por incidencia</button>
+        <button data-vr="tipo" id="btnVistaTipo" hidden>Por tipo</button>
+        <button data-vr="tabla">Tabla</button>
+      </div>
+      <button class="btn sec peq" id="btnDesplegar">Desplegar todo</button>
+    </div>
+    <div id="vistaGrupos"></div>
+    <div class="tw" id="vistaTabla" hidden>
+      <table class="res"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
+    </div>
+  </section>
+</section>
+
+<!-- =================================================== CONFIGURACIÓN -->
+<section id="vConfig" hidden>
+  <div class="cfg-hd">
+    <div>
+      <h1>Configuración</h1>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap">
+        <span class="origen" id="origen"></span>
+        <span class="sucio" id="sucio" hidden>● Cambios sin guardar</span>
+      </div>
+    </div>
+    <div class="sp"></div>
+    <button class="btn sec" id="btnProbar">Probar conexión</button>
+    <button class="btn" id="btnGuardar">Guardar</button>
+  </div>
+
+  <div class="cfg-grid">
+    <div>
+      <!-- Conexión -->
+      <section class="card">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        <h2>Conexión con FABBRO</h2>
+        <p class="desc">API de lectura de artículos.</p>
+        <label class="f">Cómo consultar</label>
+        <div class="seg" id="segModo">
+          <button data-m="catalogo">Descargar el catálogo completo</button>
+          <button data-m="codigo">Consultar código a código</button>
+          <button data-m="preview">Enviar el JSON a FABBRO</button>
+        </div>
+        <div id="bloqPreview" hidden>
+          <label class="f">URL de la vista previa de pedido (POST)</label>
+          <input type="text" id="c_urlPreview" data-c="urlPreview" placeholder="https://…/api/kitchen-orders/preview">
+          <div class="ayuda">Se le envía el JSON de Coohom tal cual y FABBRO devuelve cada tablero, canto y herraje con su código y precio de venta.</div>
+          <label class="f">Formato del diseño</label>
+          <select id="c_pvFormato" data-c="pvFormato">
+            <option value="applet-json">applet-json (JSON de Coohom descargado)</option>
+            <option value="param-model">param-model</option>
+            <option value="">Otra API: enviar el JSON tal cual</option>
+          </select>
+          <div class="ayuda">Se envía <code>{ filename, format, design }</code>. Si FABBRO rechaza el formato, se prueba el otro automáticamente.</div>
+          <div id="rowBodyKey" hidden><label class="f">Enviar el JSON dentro del campo (opcional)</label>
+          <input type="text" id="c_pvBodyKey" data-c="pvBodyKey" placeholder="Vacío = enviar el JSON tal cual"></div>
+        </div>
+        <label class="f" id="lblUrl">URL</label>
+        <input type="text" id="c_url" data-c="url">
+        <div class="ayuda" id="urlHelp"></div>
+
+        <label class="f">Autenticación</label>
+        <div class="seg" id="segAuth">
+          <button data-a="cabecera">Cabecera</button>
+          <button data-a="parametro">Parámetro en la URL</button>
+          <button data-a="ninguna">Sin clave</button>
+        </div>
+        <div class="row" id="rowCab">
+          <div><label class="f">Nombre de la cabecera</label><input type="text" id="c_hdrName" data-c="hdrName" placeholder="x-api-key"></div>
+          <div><label class="f">Prefijo (opcional)</label><input type="text" id="c_hdrPrefix" data-c="hdrPrefix" placeholder="(ninguno en FABBRO)"></div>
+        </div>
+        <div class="row" id="rowParam">
+          <div><label class="f">Nombre del parámetro</label><input type="text" id="c_paramName" data-c="paramName" placeholder="api_key"></div>
+        </div>
+        <div class="ayuda" id="authHelp"></div>
+      </section>
+
+      <!-- Clave -->
+      <section class="card" id="cardClave">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg></span>
+        <h2>Clave de acceso</h2>
+        <p class="desc">Se guarda solo en este navegador. Nunca se incluye en <code>config.json</code>.</p>
+        <div class="row">
+          <div><input type="password" id="clave" placeholder="Clave o token de FABBRO" autocomplete="off"></div>
+        </div>
+        <div class="acts" style="margin-top:12px">
+          <button class="btn sec peq" id="btnVerClave">Mostrar</button>
+          <button class="btn sec peq" id="btnOlvidarClave">Olvidar la clave</button>
+        </div>
+      </section>
+
+      <!-- Prueba -->
+      <section class="card">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+        <h2>Prueba de conexión</h2>
+        <p class="desc">Comprueba que FABBRO responde y detecta los campos de la respuesta.</p>
+        <div class="row" id="rowPrueba"><div><label class="f">Código para probar</label><input type="text" id="c_codPrueba" data-c="codPrueba" placeholder="Un código que exista"></div></div>
+        <div class="acts"><button class="btn acc" id="btnProbar2">Probar conexión</button>
+          <button class="btn sec" id="btnProbarPv" hidden>Probar la vista previa con un JSON…</button><input type="file" id="filePv" accept=".json" hidden></div>
+        <div class="estado" id="estConn"></div>
+        <div class="estado" id="estPv"></div>
+        <details class="ajustes" id="detMuestraPv" hidden>
+          <summary>Primera línea de la vista previa</summary>
+          <pre id="muestraPv"></pre>
+        </details>
+        <details class="ajustes" id="detMuestra" hidden>
+          <summary>Primer artículo recibido</summary>
+          <pre id="muestra"></pre>
+        </details>
+      </section>
+    </div>
+
+    <div>
+      <!-- Campos FABBRO -->
+      <section class="card">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+        <h2>Campos de FABBRO</h2>
+        <p class="desc">Se rellenan solos al probar la conexión. Admiten rutas con punto, p. ej. <code>precios.compra</code>.</p>
+        <div class="row">
+          <div><label class="f">Ruta de la lista</label><input type="text" id="c_listPath" data-c="listPath" placeholder="(automático)" list="dlKeys"></div>
+          <div><label class="f">Código</label><input type="text" id="c_fCode" data-c="fCode" placeholder="codigo" list="dlKeys"></div>
+        </div>
+        <label class="f">Descripción</label><input type="text" id="c_fDesc" data-c="fDesc" placeholder="descripcion" list="dlKeys">
+        <div class="row">
+          <div><label class="f">Precio de compra</label><input type="text" id="c_fCompra" data-c="fCompra" placeholder="precio_compra" list="dlKeys"></div>
+          <div><label class="f">Precio de venta</label><input type="text" id="c_fVenta" data-c="fVenta" placeholder="precio_venta" list="dlKeys"></div>
+        </div>
+        <datalist id="dlKeys"></datalist>
+        <label class="chk"><input type="checkbox" id="c_checkCompra" data-c="checkCompra"> Comprobar el precio de compra</label>
+        <div class="ayuda" style="margin-left:24px">Desactívalo mientras la API de FABBRO no devuelva el precio de compra. Si el campo está vacío, tampoco se comprueba.</div>
+        <label class="chk"><input type="checkbox" id="c_ceroFalta" data-c="ceroFalta"> Un precio a 0 cuenta como «sin precio»</label>
+      </section>
+
+      <!-- Respuesta de la vista previa -->
+      <section class="card" id="cardPreview" hidden>
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
+        <h2>Respuesta de la vista previa</h2>
+        <p class="desc">Campos de cada línea que devuelve <code>kitchen-orders/preview</code>. Se rellenan solos al probarla con un JSON.</p>
+        <div class="row">
+          <div><label class="f">Ruta de la lista</label><input type="text" id="c_pvList" data-c="pvList" placeholder="(automático)" list="dlPv"></div>
+          <div><label class="f">Código</label><input type="text" id="c_pvCode" data-c="pvCode" list="dlPv"></div>
+        </div>
+        <div class="row">
+          <div><label class="f">Nombre (Coohom)</label><input type="text" id="c_pvName" data-c="pvName" list="dlPv"></div>
+          <div><label class="f">Tipo (tablero, canto…)</label><input type="text" id="c_pvTipo" data-c="pvTipo" list="dlPv"></div>
+        </div>
+        <div class="row">
+          <div><label class="f">Cantidad</label><input type="text" id="c_pvCant" data-c="pvCant" list="dlPv"></div>
+          <div><label class="f">Precio de venta</label><input type="text" id="c_pvVenta" data-c="pvVenta" list="dlPv"></div>
+        </div>
+        <datalist id="dlPv"></datalist>
+      </section>
+
+      <!-- Coohom y criterio -->
+      <section class="card">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></span>
+        <h2>Coohom y criterio</h2>
+        <p class="desc">Campos del JSON de Coohom que se usan por defecto. Si los dejas vacíos, se detectan en cada archivo.</p>
+        <div class="row">
+          <div><label class="f">Nombre</label><input type="text" id="c_coNombre" data-c="coNombre" placeholder="(automático)"></div>
+          <div><label class="f">Código</label><input type="text" id="c_coCodigo" data-c="coCodigo" placeholder="(automático)"></div>
+          <div><label class="f">Cantidad</label><input type="text" id="c_coCant" data-c="coCant" placeholder="(automático)"></div>
+        </div>
+        <div class="row">
+          <div><label class="f">Descripción coincide desde (%)</label><input type="number" min="1" max="100" id="c_uOk" data-c="uOk"></div>
+          <div><label class="f">A revisar desde (%)</label><input type="number" min="0" max="99" id="c_uRev" data-c="uRev"></div>
+        </div>
+        <div class="ayuda">Por debajo del segundo valor, la descripción no coincide. No cuentan mayúsculas, acentos, el orden de las palabras ni palabras como «de», «con» o «cm».</div>
+      </section>
+
+      <!-- Compartir -->
+      <section class="card destacada">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
+        <h2>Compartir con compañeros</h2>
+        <ul class="compartir">
+          <li><b>1.</b> Descarga <code>config.json</code> y súbelo al repositorio de GitHub, junto a <code>index.html</code>. Todos los que abran la app usarán esta configuración.</li>
+          <li><b>2.</b> Pasa la clave por un canal privado. Puedes generar un enlace que la guarda en el navegador del compañero al abrirlo.</li>
+        </ul>
+        <div class="acts">
+          <button class="btn" id="btnExportCfg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>Descargar config.json</button>
+          <button class="btn sec" id="btnEnlace">Copiar enlace con clave</button>
+        </div>
+        <div class="acts" style="margin-top:10px">
+          <button class="btn sec peq" id="btnImportCfg">Cargar un config.json</button>
+          <button class="btn sec peq" id="btnRestablecer">Volver a la configuración publicada</button>
+          <input type="file" id="fileCfg" accept=".json" hidden>
+        </div>
+        <div class="estado" id="estCompartir"></div>
+      </section>
+
+      <!-- Protección y alternativa -->
+      <section class="card">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <h2>Protección y alternativas</h2>
+        <label class="f">Contraseña para entrar en Configuración</label>
+        <div class="row"><div><input type="password" id="nuevaPass" placeholder="Dejar vacío para no cambiarla" autocomplete="new-password"></div></div>
+        <div class="ayuda" id="passHelp"><b id="passEstado"></b>Evita que alguien cambie los ajustes sin querer. Va dentro de <code>config.json</code> cifrada (hash). No protege los datos de FABBRO.</div>
+        <div class="acts" style="margin-top:10px"><button class="btn sec peq" id="btnQuitarPass">Quitar contraseña</button></div>
+        <label class="f" style="margin-top:22px">Si la API no responde desde el navegador</label>
+        <div class="ayuda" style="margin-top:0">Carga una exportación de artículos de FABBRO (JSON o CSV) para esta sesión.</div>
+        <div class="acts" style="margin-top:10px"><button class="btn sec peq" id="btnCatalogo">Usar una exportación de FABBRO…</button><input type="file" id="fileCat" accept=".json,.csv,.txt" hidden></div>
+      </section>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>SOLA · <em>Artesanos independientes de la cocina</em></footer>
+
+<!-- Progreso -->
+<div class="overlay" id="overlay" hidden>
+  <div class="box">
+    <h3 id="ovTit">Consultando FABBRO…</h3>
+    <div id="ovTxt" style="font-size:13px;color:var(--suave)"></div>
+    <div class="prog"><i id="ovBar"></i></div>
+  </div>
+</div>
+
+<!-- Contraseña -->
+<div class="overlay" id="ovPass" hidden>
+  <div class="box">
+    <h3>Configuración protegida</h3>
+    <p style="font-size:13px;color:var(--suave);margin:0 0 14px">Escribe la contraseña de ajustes.</p>
+    <input type="password" id="passIn" autocomplete="off">
+    <div class="estado err" id="passErr"></div>
+    <div class="acts" style="justify-content:center"><button class="btn sec" id="passNo">Cancelar</button><button class="btn" id="passSi">Entrar</button></div>
+  </div>
+</div>
+
+<!-- Vista previa del Excel -->
+<div class="pv" id="pv" hidden>
+  <div class="pv-win">
+    <div class="pv-top">
+      <div class="pv-doc"><span>XLSX</span></div>
+      <div class="pv-name">
+        <div class="lb">Vista previa del <em>Excel</em></div>
+        <div class="pv-file"><input type="text" id="pvNombre" spellcheck="false"><span class="ext">.xlsx</span></div>
+      </div>
+      <div class="pv-stats" id="pvStats"></div>
+      <button class="btn dl" id="pvDescargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>Descargar Excel</button>
+      <button class="pv-x" id="pvCerrar" title="Cerrar (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="pv-bar"><span id="pvRef" style="min-width:42px;font-weight:700;color:var(--gris)">A1</span><span class="fx">fx</span><span class="val" id="pvVal"></span></div>
+    <div class="pv-body" id="pvBody"></div>
+    <div class="pv-tabs" id="pvTabs"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Utilidades
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LS = "sola_fabbro_";
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(LS + k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(LS + k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(LS + k); }catch(e){} }
+};
+const isPrim = v => v === null || ["string","number","boolean"].includes(typeof v);
+const getPath = (obj, path) => { if (!path) return obj; let c = obj; for (const p of String(path).split(".")) { if (c == null) return undefined; c = c[p]; } return c; };
+let toastT;
+function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("on"), 3200); }
+function descargar(nombre, datos, tipo){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([datos], { type: tipo }));
+  a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+async function sha256(t){
+  if (!(window.crypto && crypto.subtle)) return "plain:" + t;
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("sola-fabbro|" + t));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
+/* Normalización y similitud */
+function norm(s){ return String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " "); }
+const normCode = s => String(s ?? "").trim().toUpperCase().replace(/\s+/g, "");
+function lev(a, b){
+  if (a === b) return 0; if (!a.length) return b.length; if (!b.length) return a.length;
+  let prev = new Array(b.length + 1), cur = new Array(b.length + 1);
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    cur[0] = i; const ca = a.charCodeAt(i - 1);
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca === b.charCodeAt(j - 1) ? 0 : 1));
+    [prev, cur] = [cur, prev];
+  }
+  return prev[b.length];
+}
+const ratio = (a, b) => (!a.length && !b.length) ? 1 : 1 - lev(a, b) / Math.max(a.length, b.length);
+const VACIAS = new Set(["de","del","la","el","los","las","con","y","para","en","a","cm","mm","ud","uds"]);
+function limpiarTokens(s){ const t = s.split(" ").filter(w => w && !VACIAS.has(w)); return t.length ? t : s.split(" ").filter(Boolean); }
+function similitud(x, y){
+  const a = norm(x), b = norm(y);
+  if (!a || !b) return 0;
+  const ta = limpiarTokens(a), tb = limpiarTokens(b);
+  if (ta.join(" ") === tb.join(" ")) return 100;
+  const sortR = ratio([...ta].sort().join(" "), [...tb].sort().join(" "));
+  const sa = new Set(ta), sb = new Set(tb);
+  const inter = [...sa].filter(t => sb.has(t)).sort(), da = [...sa].filter(t => !sb.has(t)).sort(), db = [...sb].filter(t => !sa.has(t)).sort();
+  const t0 = inter.join(" "), t1 = [...inter, ...da].join(" "), t2 = [...inter, ...db].join(" ");
+  const setR = Math.max(ratio(t0, t1), ratio(t0, t2), ratio(t1, t2));
+  return Math.round(((sortR + setR) / 2) * 100);
+}
+function parsePrecio(v){
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "number") return isFinite(v) ? v : null;
+  let s = String(v).replace(/[€\s]/g, ""); if (!s) return null;
+  if (s.includes(",") && s.includes(".")) s = s.lastIndexOf(",") > s.lastIndexOf(".") ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+  else s = s.replace(",", ".");
+  const n = parseFloat(s); return isFinite(n) ? n : null;
+}
+const eur = n => n == null ? "" : n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+
+/* Detección de claves */
+const RX = {
+  code:  [/^(cod|codigo|code|ref|referencia|sku|codarticulo|cod_articulo|codigo_articulo|articulo_codigo|itemcode|item_code|productcode|product_code|customcode|brandgoodcode|productnumber|modelnumber|bgcode)$/i, /(codigo|code|^cod|sku|^ref)/i],
+  desc:  [/^(descripcion|description|desc|nombre|name|denominacion|titulo|title|descripcion_articulo)$/i, /(descrip|nombre|name|denomin)/i],
+  compra:[/^(precio_?compra|preciocompra|pcompra|p_compra|coste|costo|precio_?coste|cost|purchase_?price|compra)$/i, /(compra|coste|costo|cost|purchase)/i],
+  venta: [/^(precio_?venta|precioventa|pventa|p_venta|pvp|precio|price|sale_?price|venta|tarifa)$/i, /(venta|pvp|sale|tarifa|price|precio)/i],
+  nombre:[/^(name|nombre|productname|product_name|displayname|title|titulo|modelname|description|descripcion)$/i, /(name|nombre)/i],
+  cant:  [/^(qty|quantity|count|num|cantidad|amount|unidades|uds)$/i, /(qty|quantity|cantidad)/i],
+  tipo:  [/^(tipo|type|categoria|category|kind|familia|clase|grupo)$/i, /(tipo|type|categor|famil)/i]
+};
+function pickKey(keys, kind, exclude = []){
+  const ks = keys.filter(k => k && !exclude.includes(k));
+  for (const rx of RX[kind]) { const hit = ks.find(k => rx.test(k.split(".").pop())); if (hit) return hit; }
+  return "";
+}
+function flatKeys(o, pre = "", depth = 0, out = []){
+  if (!o || typeof o !== "object" || Array.isArray(o)) return out;
+  for (const k of Object.keys(o)) {
+    const v = o[k], p = pre ? pre + "." + k : k;
+    if (isPrim(v)) out.push(p);
+    else if (depth < 1 && v && typeof v === "object" && !Array.isArray(v)) flatKeys(v, p, depth + 1, out);
+  }
+  return out;
+}
+function findList(resp, path){
+  if (path) { const v = getPath(resp, path); return Array.isArray(v) ? v : (v && typeof v === "object" ? [v] : []); }
+  if (Array.isArray(resp)) return resp;
+  let best = null, hayListas = false;
+  (function walk(n, d){
+    if (d > 4 || !n || typeof n !== "object") return;
+    if (Array.isArray(n)) { hayListas = true; if (n.length && n.every(x => x && typeof x === "object" && !Array.isArray(x)) && (!best || n.length > best.length)) best = n; return; }
+    for (const k of Object.keys(n)) walk(n[k], d + 1);
+  })(resp, 0);
+  if (best) return best;
+  return (!resp || typeof resp !== "object" || hayListas) ? [] : [resp];
+}
+function objetosDe(resp){
+  const out = [];
+  (function walk(n, d){
+    if (d > 4 || !n || typeof n !== "object") return;
+    if (Array.isArray(n)) { n.forEach(x => walk(x, d + 1)); return; }
+    out.push(n); for (const k of Object.keys(n)) walk(n[k], d + 1);
+  })(resp, 0);
+  return out;
+}
+
+/* ============================================================
+   Configuración: por defecto < config.json publicada < ajustes locales
+   ============================================================ */
+const API_FABBRO = "https://api.fabbroapp.es/ext/v1";
+const DEF = { modo: "preview", url: API_FABBRO + "/products?limit=200", urlPreview: API_FABBRO + "/kitchen-orders/preview", pvFormato: "applet-json", pvBodyKey: "",
+  pvList: "data.price.breakdown", pvCode: "code", pvName: "name", pvTipo: "type", pvCant: "quantity", pvVenta: "unitPrice", checkCompra: true, auth: "cabecera", hdrName: "x-api-key", hdrPrefix: "", paramName: "api_key",
+  listPath: "data", fCode: "code", fDesc: "description", fCompra: "unitCost", fVenta: "salePrice", ceroFalta: true,
+  coNombre: "", coCodigo: "", coCant: "", uOk: 85, uRev: 60, codPrueba: "", bloqueo: "" };
+const CLAVES_CFG = Object.keys(DEF);
+let publicada = null;           // contenido de config.json (si existe)
+let C = { ...DEF };             // configuración en uso
+let origenCfg = "defecto";      // defecto | publicada | local
+let clave = store.get("clave", "");
+
+function limpiarCfg(o){ const r = {}; for (const k of CLAVES_CFG) if (o && o[k] !== undefined) r[k] = o[k]; return r; }
+async function cargarConfig(){
+  try {
+    const r = await fetch("config.json", { cache: "no-store" });
+    if (r.ok) publicada = limpiarCfg(await r.json());
+  } catch (e) { /* abierto en local: no hay config.json */ }
+  const local = store.get("cfg", null);
+  C = { ...DEF, ...(publicada || {}), ...(local ? limpiarCfg(local) : {}) };
+  origenCfg = local ? "local" : publicada ? "publicada" : "defecto";
+}
+const configurada = () => !!C.url && (C.modo !== "preview" || !!C.urlPreview);
+const necesitaClave = cf => cf.auth !== "ninguna";
+
+/* ---------- Clave por enlace (#acceso=...) ---------- */
+function leerEnlaceAcceso(){
+  const m = location.hash.match(/acceso=([^&]+)/);
+  if (!m) return;
+  try {
+    const k = decodeURIComponent(escape(atob(decodeURIComponent(m[1]))));
+    if (k) { clave = k; store.set("clave", k); setTimeout(() => toast("Clave de acceso guardada en este navegador"), 300); }
+  } catch (e) {}
+  history.replaceState(null, "", location.pathname + location.search);
+}
+
+/* ============================================================
+   Acceso a FABBRO
+   ============================================================ */
+let catalogo = null;   // { map, lista, origen, fecha, firma }
+let demo = false;
+class ErrCors extends Error {}
+const firmaCat = cf => JSON.stringify([cf.url, cf.auth, cf.hdrName, cf.hdrPrefix, cf.paramName, cf.listPath, cf.fCode]);
+
+const espera = ms => new Promise(r => setTimeout(r, ms));
+/* Traduce los errores de FABBRO ({ errors: [{ code, message }] }) */
+function errorFabbro(status, txt, que){
+  let code = "", msg = "";
+  try { const e = JSON.parse(txt).errors?.[0]; if (e) { code = e.code || ""; msg = e.message || ""; } } catch (x) {}
+  const ayuda = {
+    UNAUTHORIZED: "La clave no es válida, está revocada o ha caducado.",
+    FORBIDDEN_SCOPE: "La clave no tiene el permiso necesario: products:read para el catálogo y sales-orders:read para la vista previa.",
+    MODULE_NOT_ENABLED: "Esa parte de FABBRO no está activada en la empresa.",
+    DESIGN_REJECTED: "FABBRO no ha podido leer el diseño de Coohom.",
+    DESIGN_CONVERTER_UNAVAILABLE: "El lector de diseños de Coohom de FABBRO no responde (puede estar arrancando). Prueba otra vez en un minuto.",
+    VALIDATION_FAILED: "FABBRO no acepta la petición.",
+    RATE_LIMITED: "Demasiadas consultas seguidas. Espera un minuto."
+  }[code] || (status === 401 ? "Revisa la clave de acceso." : status === 403 ? "La clave no tiene permiso para esto." : "");
+  const e = new Error(`${que} respondió ${status}${code ? " · " + code : ""}${ayuda ? "\n" + ayuda : ""}${msg && !ayuda.includes(msg) ? "\nDetalle: " + msg : ""}`);
+  e.code = code; e.status = status;
+  return e;
+}
+async function apiFetch(method, url, body, cf){
+  const headers = { "Accept": "application/json" };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (cf.auth === "cabecera" && clave) headers[cf.hdrName || "x-api-key"] = (cf.hdrPrefix && cf.hdrPrefix.trim() ? cf.hdrPrefix.trim() + " " : "") + clave;
+  if (cf.auth === "parametro" && clave) url += (url.includes("?") ? "&" : "?") + encodeURIComponent(cf.paramName || "api_key") + "=" + encodeURIComponent(clave);
+  for (let intento = 0; ; intento++) {
+    let r;
+    try { r = await fetch(url, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" }); }
+    catch (e) { throw new ErrCors("No se pudo conectar"); }
+    if ((r.status === 429 || r.status === 503) && intento < 3) {
+      const seg = Math.min(60, parseInt(r.headers.get("Retry-After"), 10) || (r.status === 503 ? 20 : 10));
+      await espera(seg * 1000); continue;
+    }
+    if (r.status === 404 && method === "GET") return { __notFound: true };
+    const txt = await r.text();
+    if (!r.ok) throw errorFabbro(r.status, txt, method === "POST" ? "La vista previa de FABBRO" : "FABBRO");
+    if (!txt.trim()) return null;
+    try { return JSON.parse(txt); } catch (e) { throw new Error("La respuesta de FABBRO no es JSON"); }
+  }
+}
+const apiGet = (url, cf) => apiFetch("GET", url, undefined, cf);
+const apiPost = (url, body, cf) => apiFetch("POST", url, body, cf);
+/* Envía cada JSON de Coohom a kitchen-orders/preview y devuelve las líneas como productos */
+function detectarCamposPv(linea, cf){
+  const keys = flatKeys(linea);
+  if (!cf.pvCode) cf.pvCode = pickKey(keys, "code");
+  if (!cf.pvName) cf.pvName = pickKey(keys, "nombre", [cf.pvCode]) || pickKey(keys, "desc", [cf.pvCode]);
+  if (!cf.pvTipo) cf.pvTipo = pickKey(keys, "tipo", [cf.pvCode, cf.pvName]);
+  if (!cf.pvCant) cf.pvCant = pickKey(keys, "cant", [cf.pvCode, cf.pvName, cf.pvTipo]);
+  if (!cf.pvVenta) cf.pvVenta = pickKey(keys, "venta", [cf.pvCode, cf.pvName, cf.pvTipo, cf.pvCant]);
+  return keys;
+}
+/* Body de kitchen-orders/preview: { filename, format, design }. Si FABBRO no acepta el formato, prueba el otro. */
+let formatoOk = null;
+async function enviarPreview(d, cf){
+  if (!cf.pvFormato) return apiPost(cf.urlPreview, cf.pvBodyKey ? { [cf.pvBodyKey]: d.json } : d.json, cf);
+  const pref = formatoOk || cf.pvFormato;
+  const formatos = [pref, ...["applet-json", "param-model"].filter(f => f !== pref)];
+  let ultimo;
+  for (const format of formatos) {
+    try { const r = await apiPost(cf.urlPreview, { filename: String(d.nombre).slice(0, 200), format, design: d.json }, cf); formatoOk = format; return r; }
+    catch (e) { ultimo = e; if (!(e.status === 400 || e.code === "DESIGN_REJECTED")) throw e; }
+  }
+  throw ultimo;
+}
+async function lineasPreview(datos, cf, onProg){
+  if (!cf.urlPreview) throw new Error("Falta la URL de la vista previa (kitchen-orders/preview). Revísala en Configuración.");
+  const agg = new Map(); let muestra = null;
+  for (let i = 0; i < datos.length; i++) {
+    const d = datos[i];
+    onProg && onProg(`Analizando ${d.nombre} en FABBRO (${i + 1} de ${datos.length})…`);
+    const resp = await enviarPreview(d, cf);
+    if (getPath(resp, "data.price") === null) throw new Error("FABBRO no tiene lista de venta para esta empresa: la vista previa no puede valorar el diseño.");
+    const lista = findList(resp, cf.pvList);
+    if (!lista.length) throw new Error(`FABBRO no devolvió líneas para «${d.nombre}». Revisa la «Ruta de la lista» de la vista previa.`);
+    const muebles = getPath(resp, "data.price.furniture") || [];
+    if (!muestra) { muestra = lista[0]; detectarCamposPv(muestra, cf); }
+    for (const l of lista) {
+      const nombre = String(getPath(l, cf.pvName) ?? "").trim(), codigo = String(getPath(l, cf.pvCode) ?? "").trim();
+      if (!nombre && !codigo) continue;
+      const tipo = cf.pvTipo ? String(getPath(l, cf.pvTipo) ?? "").trim() : "";
+      const q = cf.pvCant ? (parseFloat(String(getPath(l, cf.pvCant) ?? "").replace(",", ".")) || 1) : 1;
+      const key = normCode(codigo) + "|" + norm(nombre) + "|" + norm(tipo);
+      let p = agg.get(key);
+      if (!p) { p = { nombre: nombre || codigo, codigo, tipo, unidad: String(l.unit ?? ""), cantidad: 0, archivos: new Set(), muebles: new Set(), ventaPv: parsePrecio(getPath(l, cf.pvVenta)), faltaPv: l.missing === true, conPv: true }; agg.set(key, p); }
+      p.cantidad += q; p.archivos.add(d.nombre);
+      if (l.missing === true) p.faltaPv = true;
+      const mueble = Array.isArray(l.path) && l.path[0] ? l.path[0] : (Number.isInteger(l.furnitureIndex) ? muebles[l.furnitureIndex] : null);
+      if (mueble && (mueble.name || mueble.code)) p.muebles.add([mueble.code, mueble.name].filter(Boolean).join(" · "));
+    }
+  }
+  return { productos: [...agg.values()], muestra };
+}
+$("#btnProbarPv").onclick = () => $("#filePv").click();
+$("#filePv").onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+  const cf = cfgDesdeForm(); const kForm = $("#clave").value.trim(); const kAnt = clave; if (kForm) clave = kForm;
+  const est = $("#estPv"); est.className = "estado info"; est.textContent = "Enviando el JSON a FABBRO…";
+  try {
+    const json = JSON.parse(await f.text());
+    const r = await lineasPreview([{ nombre: f.name, json }], cf);
+    ["pvCode","pvName","pvTipo","pvCant","pvVenta"].forEach(k => { const el = $("#c_" + k); if (!el.value.trim() && cf[k]) { el.value = cf[k]; marcarSucio(true); } });
+    $("#dlPv").innerHTML = flatKeys(r.muestra).map(k => `<option value="${esc(k)}">`).join("");
+    $("#muestraPv").textContent = JSON.stringify(r.muestra, null, 2).slice(0, 5000); $("#detMuestraPv").hidden = false;
+    const tipos = [...new Set(r.productos.map(p => p.tipo).filter(Boolean))];
+    est.className = "estado ok";
+    est.textContent = `Vista previa correcta: ${r.productos.length} líneas distintas${tipos.length ? " (" + tipos.slice(0, 6).join(", ") + ")" : ""}.\n` +
+      `Código: ${cf.pvCode || "?"} · Nombre: ${cf.pvName || "?"} · Tipo: ${cf.pvTipo || "—"} · Cantidad: ${cf.pvCant || "—"} · Venta: ${cf.pvVenta || "—"}` +
+      ($("#sucio").hidden ? "" : "\nPulsa «Guardar» para conservar estos ajustes.");
+  } catch (e) { est.className = "estado err"; est.textContent = msgError(e); }
+  finally { clave = kAnt; }
+};
+function msgError(e){
+  if (e instanceof ErrCors) {
+    return "No se pudo conectar con FABBRO desde el navegador.\n" +
+      "Puede ser que la URL no sea correcta, que no haya conexión o que la API no permita llamadas desde páginas web (CORS).\n" +
+      "Si es CORS, el desarrollador de FABBRO tiene que permitir el origen de esta página (" + (location.origin === "null" ? "archivo local: «null»" : location.origin) + ").";
+  }
+  return e.message || String(e);
+}
+function detectarCampos(art, cf){
+  const keys = flatKeys(art);
+  if (!cf.fCode) cf.fCode = pickKey(keys, "code");
+  if (!cf.fDesc) cf.fDesc = pickKey(keys, "desc", [cf.fCode]);
+  if (!cf.fCompra) cf.fCompra = pickKey(keys, "compra", [cf.fCode, cf.fDesc]);
+  if (!cf.fVenta) cf.fVenta = pickKey(keys, "venta", [cf.fCode, cf.fDesc, cf.fCompra]);
+  return keys;
+}
+function construirCatalogo(lista, origen, cf){
+  const map = new Map();
+  for (const a of lista) { const k = normCode(getPath(a, cf.fCode)); if (k && !map.has(k)) map.set(k, a); }
+  const sinCostes = !!cf.fCompra && lista.length > 0 && lista.every(a => getPath(a, cf.fCompra) == null || getPath(a, cf.fCompra) === "");
+  catalogo = { map, lista, origen, fecha: new Date(), firma: firmaCat(cf), sinCostes };
+  pintarChip();
+  return catalogo;
+}
+async function descargarCatalogo(cf, onProg){
+  if (!cf.url) throw new Error("Falta la URL de FABBRO.");
+  let lista = [];
+  if (cf.url.includes("{page}")) {
+    let prev = null;
+    for (let p = 1; p <= 1000; p++) {
+      onProg && onProg(`Página ${p} · ${lista.length.toLocaleString("es-ES")} artículos`);
+      const resp = await apiGet(cf.url.replace("{page}", p), cf);
+      if (!resp || resp.__notFound) break;
+      const l = findList(resp, cf.listPath);
+      if (!l.length) break;
+      const first = JSON.stringify(l[0]); if (first === prev) break; prev = first;
+      lista = lista.concat(l);
+    }
+  } else {
+    let url = cf.url, pag = 0;
+    const vistos = new Set();
+    while (pag++ < 2000) {
+      onProg && onProg(pag === 1 ? "Descargando artículos…" : `Página ${pag} · ${lista.length.toLocaleString("es-ES")} artículos`);
+      const resp = await apiGet(url, cf);
+      if (!resp || resp.__notFound) { if (pag === 1) throw new Error("La URL no devolvió artículos (404 o vacío)."); break; }
+      lista = lista.concat(findList(resp, cf.listPath));
+      const next = getPath(resp, "meta.nextCursor") ?? getPath(resp, "nextCursor") ?? getPath(resp, "meta.next_cursor");
+      if (!next || vistos.has(next)) break;
+      vistos.add(next);
+      url = cf.url.replace(/([?&])cursor=[^&]*&?/, "$1").replace(/[?&]$/, "");
+      url += (url.includes("?") ? "&" : "?") + "cursor=" + encodeURIComponent(next);
+    }
+  }
+  if (!lista.length) throw new Error("La respuesta no contiene artículos. Revisa la «Ruta de la lista».");
+  const keys = detectarCampos(lista[0], cf);
+  if (!cf.fCode) throw new Error("No se encontró el campo código. Indícalo en «Campos de FABBRO».");
+  return { cat: construirCatalogo(lista, "API", cf), muestra: lista[0], keys };
+}
+function extraerArticulo(resp, codigo, cf){
+  if (!resp || resp.__notFound) return null;
+  const objs = cf.listPath ? findList(resp, cf.listPath) : objetosDe(resp);
+  if (!objs.length) return null;
+  const k = normCode(codigo);
+  if (!cf.fCode) {
+    const o = objs.find(o => flatKeys(o).some(f => normCode(getPath(o, f)) === k));
+    if (!o) return null;
+    cf.fCode = flatKeys(o).find(f => normCode(getPath(o, f)) === k);
+    detectarCampos(o, cf);
+    return o;
+  }
+  return objs.find(a => normCode(getPath(a, cf.fCode)) === k) || null;
+}
+async function consultarCodigo(codigo, cf){
+  const pedir = async cod => extraerArticulo(await apiGet(cf.url.replace("{codigo}", encodeURIComponent(cod)), cf), cod, cf);
+  const t = String(codigo).trim(), alt = normCode(codigo);
+  return (await pedir(t)) || (alt !== t ? await pedir(alt) : null);
+}
+function pintarChip(){
+  const chip = $("#chipConn"), tx = $("#chipTxt");
+  chip.className = "chip";
+  if (demo) { tx.textContent = "Datos de ejemplo"; chip.classList.add("ok"); return; }
+  if (catalogo && catalogo.origen !== "API") { tx.textContent = "Exportación cargada · " + catalogo.lista.length.toLocaleString("es-ES") + " artículos"; chip.classList.add("ok"); return; }
+  if (!configurada()) { tx.textContent = "Sin configurar"; chip.classList.add("err"); return; }
+  if (necesitaClave(C) && !clave) { tx.textContent = "Falta la clave de acceso"; chip.classList.add("err"); return; }
+  if (catalogo) { tx.textContent = "FABBRO · " + catalogo.lista.length.toLocaleString("es-ES") + " artículos"; chip.classList.add("ok"); return; }
+  tx.textContent = C.modo === "catalogo" ? "FABBRO listo" : "FABBRO listo · por código";
+  chip.classList.add("ok");
+}
+
+/* ============================================================
+   Navegación
+   ============================================================ */
+let vista = "comprobar", desbloqueado = false;
+async function irA(v){
+  if (v === "config") demoOff();
+  if (v === "config" && C.bloqueo && !desbloqueado) {
+    const ok = await pedirPass(); if (!ok) return;
+    desbloqueado = true;
+  }
+  vista = v;
+  $("#vComprobar").hidden = v !== "comprobar";
+  $("#vConfig").hidden = v !== "config";
+  $$("nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  if (v === "config") formDesdeCfg(); else pintarAvisos();
+  window.scrollTo({ top: 0 });
+}
+$$("nav button").forEach(b => b.onclick = () => irA(b.dataset.v));
+$$("[data-ir]").forEach(b => b.onclick = () => irA(b.dataset.ir));
+function pedirPass(){
+  return new Promise(res => {
+    const ov = $("#ovPass"); ov.hidden = false; $("#passIn").value = ""; $("#passErr").textContent = ""; setTimeout(() => $("#passIn").focus(), 50);
+    const fin = v => { ov.hidden = true; $("#passSi").onclick = $("#passNo").onclick = $("#passIn").onkeydown = null; res(v); };
+    const probar = async () => { if (await sha256($("#passIn").value) === C.bloqueo) fin(true); else $("#passErr").textContent = "Contraseña incorrecta"; };
+    $("#passSi").onclick = probar; $("#passNo").onclick = () => fin(false);
+    $("#passIn").onkeydown = e => { if (e.key === "Enter") probar(); if (e.key === "Escape") fin(false); };
+  });
+}
+function pintarAvisos(){
+  $("#avisoConfig").hidden = demo || configurada() || (catalogo && catalogo.origen !== "API");
+  $("#avisoClave").hidden = demo || !configurada() || !necesitaClave(C) || !!clave || (catalogo && catalogo.origen !== "API");
+  $("#txtPrecios").textContent = C.checkCompra !== false && (C.fCompra || !configurada()) ? "Que el artículo tenga precio de compra y precio de venta." : "Que el artículo tenga precio de venta (el de compra no se comprueba).";
+  $("#txtUmbral").textContent = `Coincide desde ${C.uOk} % · a revisar entre ${C.uRev} y ${C.uOk - 1} % · por debajo, no coincide`;
+  pintarChip();
+}
+$("#btnClaveRapida").onclick = () => {
+  const v = $("#claveRapida").value.trim(); if (!v) return;
+  clave = v; store.set("clave", v); catalogo = null; $("#claveRapida").value = "";
+  pintarAvisos(); toast("Clave guardada en este navegador");
+};
+$("#claveRapida").onkeydown = e => { if (e.key === "Enter") $("#btnClaveRapida").click(); };
+
+/* ============================================================
+   Formulario de configuración
+   ============================================================ */
+let formModo = "catalogo", formAuth = "cabecera", nuevoBloqueo = null;
+function formDesdeCfg(){
+  $$("[data-c]").forEach(el => { const v = C[el.dataset.c]; if (el.type === "checkbox") el.checked = !!v; else el.value = v ?? ""; });
+  setFormModo(C.modo); setFormAuth(C.auth); $("#rowBodyKey").hidden = !!C.pvFormato;
+  $("#clave").value = clave;
+  nuevoBloqueo = null; $("#nuevaPass").value = "";
+  pintarOrigen(); marcarSucio(false);
+  $("#passEstado").textContent = C.bloqueo ? "Hay una contraseña puesta. " : "";
+}
+function cfgDesdeForm(){
+  const o = { ...C };
+  $$("[data-c]").forEach(el => { const k = el.dataset.c; o[k] = el.type === "checkbox" ? el.checked : el.type === "number" ? (parseInt(el.value, 10) || 0) : el.value.trim(); });
+  o.modo = formModo; o.auth = formAuth;
+  if (!(o.uOk > 0 && o.uOk <= 100 && o.uRev >= 0 && o.uRev < o.uOk)) { o.uOk = C.uOk; o.uRev = C.uRev; }
+  if (nuevoBloqueo !== null) o.bloqueo = nuevoBloqueo;
+  return o;
+}
+function setFormModo(m){
+  formModo = m;
+  $$("#segModo button").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+  $("#bloqPreview").hidden = m !== "preview"; $("#cardPreview").hidden = m !== "preview"; $("#btnProbarPv").hidden = m !== "preview";
+  if (m === "preview") {
+    $("#lblUrl").textContent = "URL del catálogo de artículos (products)"; $("#c_url").placeholder = "https://…/api/products";
+    $("#urlHelp").innerHTML = "Para saber si cada código existe y leer su descripción y precio de compra. Las páginas (<code>meta.nextCursor</code>) se siguen solas.";
+    $("#rowPrueba").hidden = true;
+  } else if (m === "catalogo") {
+    $("#lblUrl").textContent = "URL del listado de artículos"; $("#c_url").placeholder = "https://…/api/articulos";
+    $("#urlHelp").innerHTML = "Una llamada que devuelve todos los artículos. Si la API va por páginas, pon <code>{page}</code> donde va el número (p. ej. <code>?page={page}&amp;limit=500</code>).";
+    $("#rowPrueba").hidden = true;
+  } else {
+    $("#lblUrl").textContent = "URL de consulta por código"; $("#c_url").placeholder = "https://…/api/articulos/{codigo}";
+    $("#urlHelp").innerHTML = "Pon <code>{codigo}</code> donde va el código. Se hace una llamada por cada código distinto del proyecto.";
+    $("#rowPrueba").hidden = false;
+  }
+}
+function setFormAuth(a){
+  formAuth = a;
+  $$("#segAuth button").forEach(b => b.classList.toggle("on", b.dataset.a === a));
+  $("#rowCab").hidden = a !== "cabecera"; $("#rowParam").hidden = a !== "parametro"; $("#cardClave").hidden = a === "ninguna";
+  $("#authHelp").innerHTML = a === "cabecera" ? "Se envía <code>Nombre: Prefijo + clave</code>. En FABBRO: <code>x-api-key: fbk_…</code>, sin prefijo."
+    : a === "parametro" ? "Se añade <code>?parámetro=clave</code> a cada llamada." : "La API no pide clave.";
+}
+$$("#segModo button").forEach(b => b.onclick = () => { setFormModo(b.dataset.m); marcarSucio(true); });
+$$("#segAuth button").forEach(b => b.onclick = () => { setFormAuth(b.dataset.a); marcarSucio(true); });
+$$("[data-c]").forEach(el => el.addEventListener("input", () => marcarSucio(true)));
+$("#c_pvFormato").addEventListener("change", () => { $("#rowBodyKey").hidden = !!$("#c_pvFormato").value; marcarSucio(true); });
+function marcarSucio(v){ $("#sucio").hidden = !v; }
+function pintarOrigen(){
+  const o = $("#origen");
+  o.className = "origen " + (origenCfg === "local" ? "local" : origenCfg === "publicada" ? "pub" : "");
+  o.textContent = origenCfg === "local" ? "Ajustes propios de este navegador" : origenCfg === "publicada" ? "Configuración publicada (config.json)" : "Sin configuración publicada";
+  $("#btnRestablecer").hidden = origenCfg !== "local";
+}
+function guardar(){
+  const nueva = cfgDesdeForm();
+  C = nueva; store.set("cfg", C); origenCfg = "local";
+  const k = $("#clave").value.trim();
+  if (k !== clave) { clave = k; if (k) store.set("clave", k); else store.del("clave"); }
+  if (catalogo && catalogo.origen === "API") catalogo = null;
+  nuevoBloqueo = null; $("#nuevaPass").value = "";
+  pintarOrigen(); marcarSucio(false); pintarChip();
+  toast("Configuración guardada");
+}
+$("#btnGuardar").onclick = guardar;
+$("#clave").addEventListener("input", () => marcarSucio(true));
+$("#btnVerClave").onclick = () => { const i = $("#clave"); i.type = i.type === "password" ? "text" : "password"; $("#btnVerClave").textContent = i.type === "password" ? "Mostrar" : "Ocultar"; };
+$("#btnOlvidarClave").onclick = () => { clave = ""; store.del("clave"); $("#clave").value = ""; catalogo = null; pintarChip(); toast("Clave borrada de este navegador"); };
+$("#nuevaPass").addEventListener("input", async e => { nuevoBloqueo = e.target.value ? await sha256(e.target.value) : null; marcarSucio(true); });
+$("#btnQuitarPass").onclick = () => { nuevoBloqueo = ""; $("#nuevaPass").value = ""; marcarSucio(true); toast("La contraseña se quitará al guardar"); };
+
+/* Probar conexión con lo que hay en el formulario */
+async function probar(){
+  demoOff();
+  const cf = cfgDesdeForm();
+  const kForm = $("#clave").value.trim(); const kAnt = clave; if (kForm) clave = kForm;
+  const est = $("#estConn"); est.className = "estado info"; est.textContent = "Conectando…";
+  try {
+    if (!cf.url) throw new Error("Escribe la URL de FABBRO.");
+    if (necesitaClave(cf) && !clave) throw new Error("Escribe la clave de acceso.");
+    let muestra, txt;
+    if (cf.modo === "catalogo" || cf.modo === "preview") {
+      if (cf.url.includes("{codigo}")) throw new Error("La URL del catálogo no debe llevar {codigo}.");
+      const r = await descargarCatalogo(cf, t => { est.textContent = t; });
+      muestra = r.muestra;
+      txt = `Conexión correcta: ${r.cat.lista.length.toLocaleString("es-ES")} artículos (${r.cat.map.size.toLocaleString("es-ES")} códigos distintos).`;
+    } else {
+      if (!cf.url.includes("{codigo}")) throw new Error("La URL debe llevar {codigo}.");
+      if (!cf.codPrueba) throw new Error("Escribe un código para probar.");
+      muestra = await consultarCodigo(cf.codPrueba, cf);
+      if (!muestra) throw new Error(`FABBRO respondió, pero no devolvió el artículo «${cf.codPrueba}». Prueba otro código o revisa la ruta y el campo código.`);
+      detectarCampos(muestra, cf);
+      txt = `Conexión correcta. «${cf.codPrueba}»: ${getPath(muestra, cf.fDesc) ?? "(sin descripción)"}`;
+    }
+    // Volcar campos detectados al formulario
+    ["fCode","fDesc","fCompra","fVenta"].forEach(k => { const el = $("#c_" + k); if (!el.value.trim() && cf[k]) { el.value = cf[k]; marcarSucio(true); } });
+    $("#dlKeys").innerHTML = flatKeys(muestra).map(k => `<option value="${esc(k)}">`).join("");
+    $("#muestra").textContent = JSON.stringify(muestra, null, 2).slice(0, 5000); $("#detMuestra").hidden = false;
+    const p = v => v ? (isPrim(getPath(muestra, v)) ? getPath(muestra, v) : "—") : "sin campo";
+    est.className = "estado ok";
+    est.textContent = txt + `\nCódigo: ${cf.fCode || "?"} · Descripción: ${cf.fDesc || "?"} · Compra: ${cf.fCompra || "?"} (${p(cf.fCompra) ?? "—"}) · Venta: ${cf.fVenta || "?"} (${p(cf.fVenta) ?? "—"})` +
+      ($("#sucio").hidden ? "" : "\nPulsa «Guardar» para conservar estos ajustes.");
+  } catch (e) {
+    est.className = "estado err"; est.textContent = msgError(e);
+    if (cf.modo !== "codigo") catalogo = null;
+  } finally { clave = kAnt; pintarChip(); }
+}
+$("#btnProbar").onclick = probar; $("#btnProbar2").onclick = probar;
+
+/* Compartir */
+$("#btnExportCfg").onclick = () => {
+  const o = limpiarCfg(cfgDesdeForm());
+  descargar("config.json", JSON.stringify(o, null, 2) + "\n", "application/json");
+  const e = $("#estCompartir"); e.className = "estado ok";
+  e.textContent = "config.json descargado (sin la clave). Súbelo al repositorio, sustituyendo el anterior.";
+};
+$("#btnEnlace").onclick = async () => {
+  const k = $("#clave").value.trim() || clave;
+  const e = $("#estCompartir");
+  if (!k) { e.className = "estado err"; e.textContent = "Primero escribe la clave de acceso."; return; }
+  if (location.protocol === "file:") { e.className = "estado err"; e.textContent = "El enlace solo sirve cuando la app está publicada (GitHub Pages). Ábrela desde su dirección web y vuelve a pulsar."; return; }
+  const url = location.origin + location.pathname + "#acceso=" + encodeURIComponent(btoa(unescape(encodeURIComponent(k))));
+  try { await navigator.clipboard.writeText(url); e.className = "estado ok"; e.textContent = "Enlace copiado. Envíalo solo por un canal privado: quien lo abra queda con la clave guardada."; }
+  catch (err) { e.className = "estado info"; e.textContent = "Copia este enlace y envíalo por un canal privado:\n" + url; }
+};
+$("#btnImportCfg").onclick = () => $("#fileCfg").click();
+$("#fileCfg").onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+  try { const o = limpiarCfg(JSON.parse(await f.text())); C = { ...DEF, ...o }; formDesdeCfg(); marcarSucio(true); toast("config.json cargado: revisa y pulsa Guardar"); }
+  catch (e) { toast("El archivo no es un config.json válido"); }
+};
+$("#btnRestablecer").onclick = () => {
+  store.del("cfg"); C = { ...DEF, ...(publicada || {}) }; origenCfg = publicada ? "publicada" : "defecto";
+  catalogo = null; formDesdeCfg(); pintarChip(); toast("Se usa de nuevo la configuración publicada");
+};
+
+/* Exportación manual de FABBRO */
+$("#btnCatalogo").onclick = () => $("#fileCat").click();
+$("#fileCat").onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+  demoOff();
+  const est = $("#estConn");
+  try {
+    const cf = cfgDesdeForm(); const txt = await f.text();
+    const lista = (/\.json$/i.test(f.name) || /^\s*[\[{]/.test(txt)) ? findList(JSON.parse(txt), cf.listPath) : parseCSV(txt);
+    if (!lista.length) throw new Error("El archivo no contiene artículos.");
+    const keys = flatKeys(lista[0]);
+    ["fCode","fDesc","fCompra","fVenta"].forEach(k => { if (!keys.includes(cf[k])) cf[k] = ""; });
+    detectarCampos(lista[0], cf);
+    if (!cf.fCode) throw new Error("No se encontró la columna de código.");
+    ["fCode","fDesc","fCompra","fVenta"].forEach(k => { if ($("#c_" + k).value.trim() !== cf[k]) { $("#c_" + k).value = cf[k]; marcarSucio(true); } });
+    construirCatalogo(lista, "archivo «" + f.name + "»", cf);
+    C = { ...C, fCode: cf.fCode, fDesc: cf.fDesc, fCompra: cf.fCompra, fVenta: cf.fVenta };
+    est.className = "estado ok";
+    est.textContent = `Exportación cargada (${f.name}): ${lista.length.toLocaleString("es-ES")} artículos. Se usará en esta sesión en lugar de la API.`;
+    $("#dlKeys").innerHTML = keys.map(k => `<option value="${esc(k)}">`).join("");
+  } catch (e) { est.className = "estado err"; est.textContent = "No se pudo leer la exportación: " + e.message; }
+};
+function parseCSV(txt){
+  txt = txt.replace(/^﻿/, "");
+  const first = txt.split(/\r?\n/)[0];
+  const sep = [";", "\t", ","].sort((a, b) => first.split(b).length - first.split(a).length)[0];
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const ch = txt[i];
+    if (q) { if (ch === '"') { if (txt[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === sep) { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && txt[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  const head = (rows.shift() || []).map(h => h.trim());
+  return rows.filter(r => r.some(x => x.trim())).map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] ?? "").trim()])));
+}
+
+/* ============================================================
+   Lectura del JSON de Coohom
+   ============================================================ */
+let proyecto = null;
+const drop = $("#drop");
+drop.onclick = () => $("#fileJson").click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); leerArchivos([...e.dataTransfer.files]); };
+$("#fileJson").onchange = e => { leerArchivos([...e.target.files]); e.target.value = ""; };
+async function leerArchivos(files){
+  if (!files.length) return;
+  const datos = [];
+  for (const f of files) {
+    try { datos.push({ nombre: f.name, json: JSON.parse(await f.text()) }); }
+    catch (e) { $("#estJson").className = "estado err"; $("#estJson").textContent = `«${f.name}» no es un JSON válido.`; return; }
+  }
+  if (demo) demoOff();
+  analizarProyecto(datos);
+}
+function analizarProyecto(datos){
+  const grupos = new Map();
+  for (const d of datos) {
+    (function walk(n, path){
+      if (Array.isArray(n)) { n.forEach(x => walk(x, path + "[]")); return; }
+      if (!n || typeof n !== "object") return;
+      let g = grupos.get(path);
+      if (!g) { g = { path, objs: [], keys: new Map() }; grupos.set(path, g); }
+      g.objs.push({ o: n, archivo: d.nombre });
+      for (const k of flatKeys(n)) g.keys.set(k, (g.keys.get(k) || 0) + 1);
+      for (const k of Object.keys(n)) if (n[k] && typeof n[k] === "object") walk(n[k], path + "." + k);
+    })(d.json, "");
+  }
+  proyecto = { archivos: datos.map(d => d.nombre), grupos, datos };
+  $("#resultados").hidden = true; resultados = [];
+  const todas = new Set(); for (const g of grupos.values()) for (const k of g.keys.keys()) todas.add(k);
+  const keys = [...todas].sort((a, b) => a.localeCompare(b));
+  const ord = [...todas];
+  const nombreK = (C.coNombre && todas.has(C.coNombre)) ? C.coNombre : pickKey(ord, "nombre");
+  const codigoK = (C.coCodigo && todas.has(C.coCodigo)) ? C.coCodigo : pickKey(ord, "code", [nombreK]);
+  const cantK = (C.coCant && todas.has(C.coCant)) ? C.coCant : pickKey(ord, "cant", [nombreK, codigoK]);
+  const opts = (sel, extra) => (extra ? `<option value="">${extra}</option>` : "") + keys.map(k => `<option ${k === sel ? "selected" : ""} value="${esc(k)}">${esc(k)}</option>`).join("");
+  $("#selNombre").innerHTML = opts(nombreK, nombreK ? null : "— elige —");
+  $("#selCodigo").innerHTML = opts(codigoK, "— ninguno —");
+  $("#selCant").innerHTML = opts(cantK, "Contar 1 por aparición");
+  pintarGrupos();
+  $("#detLectura").hidden = C.modo === "preview" && !demo;
+  if (C.modo === "preview" && !demo) { $("#estJson").className = "estado info"; }
+  $("#filesInfo").innerHTML = datos.map(d => `<span>📄 ${esc(d.nombre)}</span>`).join("");
+  $("#btnComprobar").disabled = false;
+  if (C.modo === "preview" && !demo) $("#estJson").textContent = "FABBRO leerá este JSON y sacará cada tablero, canto y herraje.";
+  else { $("#estJson").className = "estado"; $("#estJson").textContent = ""; }
+}
+function pintarGrupos(){
+  const nk = $("#selNombre").value, ck = $("#selCodigo").value;
+  const lista = [...proyecto.grupos.values()].filter(g => nk && g.keys.has(nk)).sort((a, b) => (b.keys.has(ck) - a.keys.has(ck)) || (b.objs.length - a.objs.length));
+  const marcados = lista.filter(g => ck ? g.keys.has(ck) : true);
+  if (!marcados.length && lista.length) marcados.push(lista[0]);
+  $("#grupos").innerHTML = lista.length ? lista.map(g => {
+    const ej = g.objs.slice(0, 3).map(x => getPath(x.o, nk)).filter(Boolean).map(esc).join(" · ");
+    return `<label class="grupo"><input type="checkbox" value="${esc(g.path)}" ${marcados.includes(g) ? "checked" : ""}><div><code>${esc(g.path || "(raíz)")}</code> · ${g.objs.length} elementos${g.keys.has(ck) ? " · con código" : ""}<div class="ej">${ej}</div></div></label>`;
+  }).join("") : `<div class="vacio" style="padding:14px">Ningún elemento tiene el campo «${esc(nk)}».</div>`;
+  $("#grpInfo").textContent = `(${lista.length} ubicaciones con «${nk}»)`;
+}
+$("#selNombre").onchange = pintarGrupos;
+$("#selCodigo").onchange = pintarGrupos;
+function productosDelProyecto(){
+  const nk = $("#selNombre").value, ck = $("#selCodigo").value, qk = $("#selCant").value;
+  const sel = new Set($$("#grupos input:checked").map(i => i.value));
+  const agg = new Map();
+  for (const g of proyecto.grupos.values()) {
+    if (!sel.has(g.path)) continue;
+    for (const { o, archivo } of g.objs) {
+      const nombre = String(getPath(o, nk) ?? "").trim(), codigo = ck ? String(getPath(o, ck) ?? "").trim() : "";
+      if (!nombre && !codigo) continue;
+      const q = qk ? (parseFloat(getPath(o, qk)) || 1) : 1;
+      const key = normCode(codigo) + "|" + norm(nombre);
+      let p = agg.get(key);
+      if (!p) { p = { nombre, codigo, cantidad: 0, archivos: new Set() }; agg.set(key, p); }
+      p.cantidad += q; p.archivos.add(archivo);
+    }
+  }
+  return [...agg.values()];
+}
+
+/* ============================================================
+   Comprobación
+   ============================================================ */
+function overlay(show, tit, txt, pct){
+  $("#overlay").hidden = !show;
+  if (tit) $("#ovTit").textContent = tit;
+  if (txt != null) $("#ovTxt").textContent = txt;
+  $("#ovBar").style.width = (pct == null ? 100 : pct) + "%";
+}
+function sugerir(nombre, lista, cf){
+  if (!lista || !lista.length || !cf.fDesc) return null;
+  if (!lista.__tok) lista.__tok = lista.map(a => new Set(limpiarTokens(norm(getPath(a, cf.fDesc)))));
+  const t = new Set(limpiarTokens(norm(nombre)));
+  if (!t.size) return null;
+  const cand = [];
+  lista.forEach((a, i) => { const s = lista.__tok[i]; if (!s.size) return; let n = 0; for (const w of t) if (s.has(w)) n++; if (n) cand.push([2 * n / (t.size + s.size), i]); });
+  cand.sort((a, b) => b[0] - a[0]);
+  let best = null;
+  for (const [, i] of cand.slice(0, 15)) {
+    const sc = similitud(nombre, getPath(lista[i], cf.fDesc));
+    if (!best || sc > best.sim) best = { sim: sc, codigo: String(getPath(lista[i], cf.fCode) ?? ""), desc: String(getPath(lista[i], cf.fDesc) ?? "") };
+  }
+  return best && best.sim >= C.uRev ? best : null;
+}
+let resultados = [], info = {}, cfgUsada = C;
+$("#btnComprobar").onclick = () => comprobar();
+$("#btnRecomprobar").onclick = async () => {
+  const antes = resultados.filter(r => r.estado !== "ok").length;
+  const clavesAntes = new Map(resultados.map(r => [claveR(r), r.estado]));
+  if (catalogo && catalogo.origen === "API") catalogo = null;
+  await comprobar(true);
+  const ahora = resultados.filter(r => r.estado !== "ok").length;
+  const arreglados = resultados.filter(r => r.estado === "ok" && clavesAntes.has(claveR(r)) && clavesAntes.get(claveR(r)) !== "ok").length;
+  toast(ahora === 0 ? "¡Todo correcto! No queda ninguna incidencia" : `Quedan ${ahora} con incidencias (antes ${antes})` + (arreglados ? ` · ${arreglados} corregidos` : ""));
+};
+async function comprobar(mantener = false){
+  if (!proyecto) return;
+  const est = $("#estJson");
+  const cf = { ...C };
+  const local = demo || (catalogo && catalogo.origen !== "API");   // datos de ejemplo o exportación cargada
+  const conPreview = !demo && cf.modo === "preview";
+  let productos = conPreview ? [] : productosDelProyecto();
+  if (!conPreview && !productos.length) { est.className = "estado err"; est.textContent = "No se encontraron productos. Revisa «Cómo se lee este JSON»."; $("#detLectura").open = true; return; }
+  try {
+    if (conPreview) {
+      if (!configurada()) { pintarAvisos(); throw new Error("La conexión con FABBRO no está configurada."); }
+      if (necesitaClave(cf) && !clave) { pintarAvisos(); $("#claveRapida").focus(); throw new Error("Falta la clave de acceso a FABBRO."); }
+      overlay(true, "Enviando el proyecto a FABBRO…", "", null);
+      productos = (await lineasPreview(proyecto.datos, cf, t => overlay(true, null, t, null))).productos;
+      if (!productos.length) throw new Error("FABBRO no devolvió ninguna línea para este proyecto.");
+    }
+    const usarCatalogo = local || cf.modo === "catalogo" || cf.modo === "preview";
+    const hayQueLlamar = !local && (cf.modo === "codigo" || !catalogo || catalogo.firma !== firmaCat(cf));
+    if (hayQueLlamar) {
+      if (!configurada()) { pintarAvisos(); throw new Error("La conexión con FABBRO no está configurada."); }
+      if (necesitaClave(cf) && !clave) { pintarAvisos(); $("#claveRapida").focus(); throw new Error("Falta la clave de acceso a FABBRO."); }
+    }
+    const porCodigo = new Map();
+    const codigos = [...new Set(productos.map(p => normCode(p.codigo)).filter(Boolean))];
+    if (usarCatalogo) {
+      if (hayQueLlamar) {
+        overlay(true, "Descargando el catálogo de FABBRO…", "", null);
+        await descargarCatalogo(cf, t => overlay(true, null, t, null));
+      } else if (!local) detectarCampos(catalogo.lista[0], cf);
+      for (const k of codigos) porCodigo.set(k, catalogo.map.get(k) || null);
+    } else {
+      if (!cf.url.includes("{codigo}")) throw new Error("La URL de consulta por código debe llevar {codigo}. Revísala en Configuración.");
+      const orig = new Map(productos.filter(p => p.codigo).map(p => [normCode(p.codigo), p.codigo]));
+      let hechos = 0, idx = 0;
+      overlay(true, "Consultando FABBRO…", `0 de ${codigos.length} códigos`, 0);
+      const worker = async () => {
+        while (idx < codigos.length) {
+          const k = codigos[idx++];
+          try { porCodigo.set(k, await consultarCodigo(orig.get(k), cf)); }
+          catch (e) { if (e instanceof ErrCors && hechos === 0) throw e; porCodigo.set(k, { __error: msgError(e) }); }
+          hechos++; overlay(true, null, `${hechos} de ${codigos.length} códigos`, Math.round(hechos / codigos.length * 100));
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(4, codigos.length || 1) }, worker));
+    }
+    overlay(false);
+    resultados = productos.map(p => evaluar(p, porCodigo, cf));
+    resultados.sort((a, b) => ORD[a.estado] - ORD[b.estado] || a.nombre.localeCompare(b.nombre, "es"));
+    info = { archivos: proyecto.archivos.join(", "), fecha: new Date(),
+      origen: demo ? "datos de ejemplo" : conPreview ? "API · vista previa de pedido + catálogo" : catalogo && usarCatalogo ? (catalogo.origen === "API" ? "API · catálogo completo" : catalogo.origen) : "API · consulta por código" };
+    cfgUsada = cf;
+    if (!mantener) { filtro = "todos"; $("#buscar").value = ""; orden = { col: null, dir: 1 }; abiertos.clear(); gruposCerrados.clear(); gruposCerrados.add("ok"); }
+    pintarResultados(); pintarChip();
+    $("#resultados").hidden = false;
+    if (!mantener) $("#resultados").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { overlay(false); est.className = "estado err"; est.textContent = msgError(e); }
+}
+const ORD = { error: 0, revisar: 1, ok: 2 };
+function evaluar(p, porCodigo, cf){
+  const r = { tipo: p.tipo || "", nombre: p.nombre, codigo: p.codigo, cantidad: p.cantidad, archivos: [...p.archivos].join(", "), existe: null, descF: "", sim: null, compra: null, venta: null, sugerencia: null, inc: [], flags: {} };
+  const add = (nivel, txt, flag) => { r.inc.push({ nivel, txt }); if (flag) r.flags[flag] = true; };
+  r.unidad = p.unidad || ""; r.muebles = p.muebles ? [...p.muebles] : [];
+  if (!p.codigo) add("error", "Sin código", "sinCodigo");
+  else {
+    const art = porCodigo.get(normCode(p.codigo));
+    if (art && art.__error) { r.existe = "error"; add("revisar", "No se pudo consultar: " + art.__error, "errConsulta"); }
+    else if (!art) { r.existe = false; add("error", "El código no existe en FABBRO", "noExiste"); if (p.conPv && !p.faltaPv && p.ventaPv != null) r.venta = p.ventaPv; }
+    else {
+      r.existe = true;
+      r.descF = String(getPath(art, cf.fDesc) ?? "").trim();
+      if (!r.descF) add("revisar", "Sin descripción en FABBRO", "descRevisar");
+      else { r.sim = similitud(p.nombre, r.descF); if (r.sim < C.uRev) add("error", "La descripción no coincide", "descNo"); else if (r.sim < C.uOk) add("revisar", "Descripción parecida: revisar", "descRevisar"); }
+      const compraActiva = cf.checkCompra !== false && !!cf.fCompra && !(catalogo && catalogo.sinCostes);
+      if (getPath(art, "active") === false || getPath(art, "activo") === false) add("revisar", "Artículo inactivo en FABBRO", "inactivo");
+      r.compra = compraActiva ? parsePrecio(getPath(art, cf.fCompra)) : null;
+      const falta = v => v == null || (C.ceroFalta && v === 0);
+      if (!compraActiva) r.flags.compraNoDisp = true;
+      else if (falta(r.compra)) add("error", "Sin precio de compra", "sinCompra");
+      if (p.conPv) {
+        // Modo vista previa: manda la tarifa de venta de FABBRO (un 0 explícito no cuenta como falta)
+        r.venta = p.ventaPv; r.ventaFicha = cf.fVenta ? parsePrecio(getPath(art, cf.fVenta)) : null;
+        if (p.faltaPv || falta(r.venta)) add("error", "Sin precio de venta en la tarifa", "sinVenta");
+      } else {
+        r.venta = cf.fVenta ? parsePrecio(getPath(art, cf.fVenta)) : null;
+        if (falta(r.venta)) add("error", "Sin precio de venta", "sinVenta");
+      }
+    }
+  }
+  if ((r.flags.sinCodigo || r.flags.noExiste) && catalogo) r.sugerencia = sugerir(p.nombre, catalogo.lista, cf);
+  r.estado = r.inc.some(i => i.nivel === "error") ? "error" : r.inc.length ? "revisar" : "ok";
+  return r;
+}
+
+/* ============================================================
+   Resultados en pantalla
+   ============================================================ */
+let filtro = "todos", orden = { col: null, dir: 1 };
+const FILTROS = [
+  { id: "todos", l: "Productos", cls: "k-tot", f: () => true },
+  { id: "ok", l: "Correctos", cls: "k-ok", f: r => r.estado === "ok" },
+  { id: "sinCodigo", l: "Sin código", cls: "k-err", f: r => r.flags.sinCodigo },
+  { id: "noExiste", l: "Código no existe", cls: "k-err", f: r => r.flags.noExiste },
+  { id: "descNo", l: "Descripción distinta", cls: "k-err", f: r => r.flags.descNo },
+  { id: "descRevisar", l: "Descripción a revisar", cls: "k-rev", f: r => r.flags.descRevisar },
+  { id: "sinCompra", l: "Sin precio de compra", cls: "k-err", f: r => r.flags.sinCompra, ocultarSi0: () => resultados.some(r => r.flags.compraNoDisp) },
+  { id: "sinVenta", l: "Sin precio de venta", cls: "k-err", f: r => r.flags.sinVenta },
+  { id: "inactivo", l: "Inactivos", cls: "k-rev", f: r => r.flags.inactivo, ocultarSi0: true },
+  { id: "errConsulta", l: "Sin respuesta", cls: "k-rev", f: r => r.flags.errConsulta, ocultarSi0: true }
+];
+const hayTipos = () => resultados.some(r => r.tipo);
+const hayMuebles = () => resultados.some(r => (r.muebles && r.muebles.length) || r.unidad);
+const COLS = [
+  { k: "estado", l: "Estado" }, { k: "tipo", l: "Tipo" }, { k: "nombre", l: "Producto (Coohom)" }, { k: "cantidad", l: "Uds." }, { k: "codigo", l: "Código" },
+  { k: "existe", l: "En FABBRO" }, { k: "descF", l: "Descripción FABBRO" }, { k: "sim", l: "Similitud" },
+  { k: "compra", l: "P. compra" }, { k: "venta", l: "P. venta" }, { k: "inc", l: "Incidencias" }
+];
+function pintarResultados(){
+  $("#avisoCostes").hidden = !(catalogo && catalogo.sinCostes && cfgUsada.checkCompra !== false && !demo);
+  const n = resultados.length, u = resultados.reduce((s, r) => s + r.cantidad, 0);
+  $("#resMeta").textContent = `${info.archivos} · ${n} productos distintos (${u.toLocaleString("es-ES")} uds.) · FABBRO: ${info.origen} · ${info.fecha.toLocaleString("es-ES")}`;
+  $("#kpis").innerHTML = FILTROS.map(f => {
+    const v = resultados.filter(f.f).length; if (f.ocultarSi0 && !v && (typeof f.ocultarSi0 !== "function" || f.ocultarSi0())) return "";
+    return `<button class="kpi ${f.cls} ${v ? "" : "zero"} ${filtro === f.id ? "on" : ""}" data-f="${f.id}"><div class="v">${v}</div><div class="l">${f.l}</div></button>`;
+  }).join("");
+  $$(".kpi").forEach(b => b.onclick = () => { filtro = filtro === b.dataset.f ? "todos" : b.dataset.f; pintarResultados(); });
+  const c = { ok: 0, revisar: 0, error: 0 }; resultados.forEach(r => c[r.estado]++);
+  $("#barraOk").innerHTML = n ? `<span style="width:${c.ok / n * 100}%;background:var(--ok)" title="Correctos: ${c.ok}"></span><span style="width:${c.revisar / n * 100}%;background:var(--rev)" title="A revisar: ${c.revisar}"></span><span style="width:${c.error / n * 100}%;background:var(--err)" title="Con errores: ${c.error}"></span>` : "";
+  $("#thead").innerHTML = COLS.filter(c => c.k !== "tipo" || hayTipos()).map(col => `<th data-k="${col.k}">${col.l}<span style="opacity:.5;margin-left:4px">${orden.col === col.k ? (orden.dir > 0 ? "▲" : "▼") : ""}</span></th>`).join("");
+  $$("#thead th").forEach(th => th.onclick = () => { orden = { col: th.dataset.k, dir: orden.col === th.dataset.k ? -orden.dir : 1 }; pintarResultados(); });
+  pintarVista();
+}
+function filasVisibles(){
+  const f = FILTROS.find(x => x.id === filtro) || FILTROS[0];
+  const q = norm($("#buscar").value);
+  let rows = resultados.filter(f.f);
+  if (q) rows = rows.filter(r => norm([r.nombre, r.codigo, r.descF].join(" ")).includes(q));
+  if (orden.col) {
+    const k = orden.col;
+    const val = r => k === "estado" ? ORD[r.estado] : k === "inc" ? r.inc.length : k === "existe" ? String(r.existe) : r[k];
+    rows = [...rows].sort((a, b) => { const x = val(a), y = val(b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1;
+      return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "es", { numeric: true })) * orden.dir; });
+  }
+  return rows;
+}
+function pintarTabla(){
+  const rows = filasVisibles();
+  $("#cnt").textContent = `${rows.length} de ${resultados.length} productos`;
+  if (!rows.length) { $("#tbody").innerHTML = `<tr><td colspan="${COLS.length}" class="vacio">No hay productos en esta vista.</td></tr>`; return; }
+  const pillEst = { ok: '<span class="pill p-ok">Correcto</span>', revisar: '<span class="pill p-rev">Revisar</span>', error: '<span class="pill p-err">Error</span>' };
+  const colSim = s => s >= C.uOk ? "var(--ok)" : s >= C.uRev ? "var(--rev)" : "var(--err)";
+  $("#tbody").innerHTML = rows.map(r => {
+    const existe = r.existe === true ? '<span class="pill p-ok">Sí</span>' : r.existe === false ? '<span class="pill p-err">No</span>' : r.existe === "error" ? '<span class="pill p-rev">Sin respuesta</span>' : '<span class="pill p-na">—</span>';
+    const sim = r.sim == null ? "" : `<div class="sim"><div class="b"><i style="width:${r.sim}%;background:${colSim(r.sim)}"></i></div><span class="t">${r.sim}%</span></div>`;
+    const precio = (v, ok) => r.existe !== true ? "" : (ok ? esc(eur(v)) : `<span class="falta">${v === 0 ? "0,00 € · " : ""}Falta</span>`);
+    const sug = r.sugerencia ? `<div class="sug">¿Quizá <b>${esc(r.sugerencia.codigo)}</b> · ${esc(r.sugerencia.desc)} (${r.sugerencia.sim}%)?</div>` : "";
+    return `<tr><td>${pillEst[r.estado]}</td>${hayTipos() ? `<td>${esc(r.tipo)}</td>` : ""}<td>${esc(r.nombre)}${sug}</td><td class="num">${r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 })}${r.unidad ? " " + esc(r.unidad) : ""}</td>
+      <td class="cod">${r.codigo ? esc(r.codigo) : '<span class="falta">Sin código</span>'}</td><td>${existe}</td><td>${esc(r.descF)}</td><td>${sim}</td>
+      <td class="num">${r.flags.compraNoDisp ? '<span class="pill p-na">No disponible</span>' : precio(r.compra, !r.flags.sinCompra)}</td><td class="num">${precio(r.venta, !r.flags.sinVenta)}</td>
+      <td><div class="inc">${r.inc.length ? r.inc.map(i => `<span class="pill ${i.nivel === "error" ? "p-err" : "p-rev"}">${esc(i.txt)}</span>`).join("") : '<span class="pill p-ok">Sin incidencias</span>'}</div></td></tr>`;
+  }).join("");
+}
+$("#buscar").oninput = pintarVista;
+
+/* ---------- Vistas de resultados: agrupadas y desplegables ---------- */
+let vistaRes = store.get("vistaRes", "estado");
+const abiertos = new Set();          // fichas de producto abiertas (se mantienen al filtrar)
+const gruposCerrados = new Set(["ok"]);
+$$("#segVista button").forEach(b => b.onclick = () => { vistaRes = b.dataset.vr; store.set("vistaRes", vistaRes); pintarVista(); });
+function pintarVista(){
+  $("#btnVistaTipo").hidden = !hayTipos();
+  if (vistaRes === "tipo" && !hayTipos()) vistaRes = "estado";
+  $$("#segVista button").forEach(b => b.classList.toggle("on", b.dataset.vr === vistaRes));
+  const tabla = vistaRes === "tabla";
+  $("#vistaTabla").hidden = !tabla; $("#vistaGrupos").hidden = tabla; $("#btnDesplegar").hidden = tabla;
+  if (tabla) pintarTabla(); else pintarGrupos2();
+}
+const uds = n => n.toLocaleString("es-ES") + (n === 1 ? " ud." : " uds.");
+const claveR = r => normCode(r.codigo) + "|" + norm(r.nombre);
+function definicionGrupos(){
+  if (vistaRes === "tipo") {
+    const tipos = [...new Set(resultados.map(r => r.tipo || "Sin tipo"))].sort((a, b) => a.localeCompare(b, "es"));
+    return tipos.map(t => {
+      const rs = resultados.filter(r => (r.tipo || "Sin tipo") === t), err = rs.filter(r => r.estado === "error").length, rev = rs.filter(r => r.estado === "revisar").length;
+      return { id: "t_" + norm(t), t: t.charAt(0).toUpperCase() + t.slice(1), d: err || rev ? `${err} con errores · ${rev} a revisar` : "Todo correcto", cls: err ? "g-err" : rev ? "g-rev" : "g-ok", f: r => (r.tipo || "Sin tipo") === t };
+    });
+  }
+  if (vistaRes === "estado") return [
+    { id: "error", t: "Con errores", d: "Hay que corregir algo antes de pasar el proyecto", cls: "g-err", f: r => r.estado === "error" },
+    { id: "revisar", t: "A revisar", d: "Probablemente bien, pero conviene mirarlo", cls: "g-rev", f: r => r.estado === "revisar" },
+    { id: "ok", t: "Correctos", d: "Código, descripción y precios en orden", cls: "g-ok", f: r => r.estado === "ok" }
+  ];
+  return [
+    { id: "sinCodigo", t: "Sin código", d: "El producto no tiene código en Coohom", cls: "g-err", f: r => r.flags.sinCodigo },
+    { id: "noExiste", t: "El código no existe en FABBRO", d: "Revisa el código en Coohom o da de alta el artículo", cls: "g-err", f: r => r.flags.noExiste },
+    { id: "descNo", t: "La descripción no coincide", d: "El código existe, pero parece otro artículo", cls: "g-err", f: r => r.flags.descNo },
+    { id: "sinCompra", t: "Sin precio de compra", d: "El artículo no tiene precio de compra en FABBRO", cls: "g-err", f: r => r.flags.sinCompra },
+    { id: "sinVenta", t: "Sin precio de venta", d: "El artículo no tiene precio de venta en FABBRO", cls: "g-err", f: r => r.flags.sinVenta },
+    { id: "descRevisar", t: "Descripción a revisar", d: "Se parecen, pero no del todo", cls: "g-rev", f: r => r.flags.descRevisar },
+    { id: "inactivo", t: "Artículos inactivos", d: "Existen en FABBRO pero están dados de baja", cls: "g-rev", f: r => r.flags.inactivo },
+    { id: "errConsulta", t: "Sin respuesta de FABBRO", d: "No se pudo consultar el código", cls: "g-rev", f: r => r.flags.errConsulta },
+    { id: "ok", t: "Correctos", d: "Sin incidencias", cls: "g-ok", f: r => r.estado === "ok" }
+  ];
+}
+function pintarGrupos2(){
+  const rows = filasVisibles();
+  $("#cnt").textContent = `${rows.length} de ${resultados.length} productos`;
+  const grupos = definicionGrupos().map(g => ({ ...g, rows: rows.filter(g.f) })).filter(g => g.rows.length);
+  if (!grupos.length) { $("#vistaGrupos").innerHTML = `<div class="card vacio">No hay productos en esta vista.</div>`; return; }
+  $("#vistaGrupos").innerHTML = grupos.map(g => {
+    const totU = g.rows.reduce((s, r) => s + r.cantidad, 0);
+    return `<details class="grp ${g.cls}" data-g="${g.id}" ${gruposCerrados.has(g.id) ? "" : "open"}>
+      <summary><span class="chev"></span><div><div class="gt">${esc(g.t)}</div><div class="gd">${esc(g.d)}</div></div>
+        <span class="gn">${g.rows.length}</span><span class="gu">${g.rows.length === 1 ? "producto" : "productos"}${hayMuebles() ? "" : "<br>" + uds(totU)}</span></summary>
+      <div class="items">${g.rows.map(r => fichaProducto(r, g.id)).join("")}</div>
+    </details>`;
+  }).join("");
+  $$("#vistaGrupos .grp").forEach(d => d.addEventListener("toggle", () => { d.open ? gruposCerrados.delete(d.dataset.g) : gruposCerrados.add(d.dataset.g); actualizarBotonDesplegar(); }));
+  $$("#vistaGrupos .it").forEach(d => d.addEventListener("toggle", () => { d.open ? abiertos.add(d.dataset.k) : abiertos.delete(d.dataset.k); actualizarBotonDesplegar(); }));
+  $$("#vistaGrupos [data-copiar]").forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); copiar(b.dataset.copiar); });
+  actualizarBotonDesplegar();
+}
+function fichaProducto(r, gid){
+  const k = claveR(r);
+  const pill = { ok: '<span class="pill p-ok">Correcto</span>', revisar: '<span class="pill p-rev">Revisar</span>', error: '<span class="pill p-err">Error</span>' }[r.estado];
+  const chips = r.inc.length ? r.inc.map(i => `<span class="pill ${i.nivel === "error" ? "p-err" : "p-rev"}">${esc(i.txt)}</span>`).join("") : '<span class="pill p-ok">Sin incidencias</span>';
+  const pr = (v, falta) => r.existe !== true ? "—" : falta ? `<b class="falta">Falta</b>` : esc(eur(v));
+  const sub = (r.tipo ? `<b style="color:var(--petroleo);font-weight:700">${esc(r.tipo)}</b>${r.descF || r.sugerencia ? " · " : ""}` : "") + (r.descF ? esc(r.descF) : r.sugerencia ? "¿Quizá " + esc(r.sugerencia.codigo) + "?" : "");
+  return `<details class="it" data-k="${esc(k)}" ${abiertos.has(k) ? "open" : ""}>
+    <summary><span class="chev"></span>${pill}
+      <div class="nm">${esc(r.nombre)}${r.cantidad !== 1 || r.unidad ? ` <span style="font-weight:400;color:var(--suave)">× ${r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 })}${r.unidad ? " " + esc(r.unidad) : ""}</span>` : ""}${sub ? `<small>${sub}</small>` : ""}</div>
+      <div class="cd">${r.codigo ? esc(r.codigo) : '<span class="falta">Sin código</span>'}</div>
+      <div class="chips">${chips}</div>
+      <div class="pr"><span><em>Compra</em>${r.flags.compraNoDisp && r.existe === true ? '<span style="color:var(--suave)">n/d</span>' : pr(r.compra, r.flags.sinCompra)}</span><span><em>Venta</em>${pr(r.venta, r.flags.sinVenta)}</span></div>
+    </summary>
+    ${detalleProducto(r)}
+  </details>`;
+}
+/* Resalta las palabras de un texto que no están en el otro */
+function resaltar(txt, otro){
+  const otras = new Set(limpiarTokens(norm(otro)));
+  return String(txt).split(/(\s+)/).map(w => {
+    const n = norm(w);
+    return n && !VACIAS.has(n) && !n.split(" ").every(x => otras.has(x)) ? `<mark>${esc(w)}</mark>` : esc(w);
+  }).join("");
+}
+function detalleProducto(r){
+  const colSim = s => s >= C.uOk ? "var(--ok)" : s >= C.uRev ? "var(--rev)" : "var(--err)";
+  let comp;
+  if (r.existe === true) {
+    comp = `<div class="cmp">
+        <span class="lb">Coohom</span><span>${r.descF ? resaltar(r.nombre, r.descF) : esc(r.nombre)}</span>
+        <span class="lb">FABBRO</span><span>${r.descF ? resaltar(r.descF, r.nombre) : '<span class="vac">Sin descripción</span>'}</span>
+      </div>` + (r.sim != null ? `<div class="simg"><div class="b"><i style="width:${r.sim}%;background:${colSim(r.sim)}"></i></div><b>${r.sim}%</b></div>
+      <div class="ayuda">Similitud. En amarillo, las palabras que no aparecen en el otro texto.</div>` : "");
+  } else {
+    comp = `<div class="cmp"><span class="lb">Coohom</span><span>${esc(r.nombre)}</span>
+      <span class="lb">FABBRO</span><span class="vac">${r.flags.sinCodigo ? "No se puede buscar: el producto no tiene código" : r.existe === "error" ? "No se pudo consultar" : "No hay ningún artículo con el código " + esc(r.codigo)}</span></div>`;
+  }
+  const sug = r.sugerencia ? `<div class="sugbox"><div class="tx">Artículo de FABBRO más parecido: <b>${esc(r.sugerencia.codigo)}</b> · ${esc(r.sugerencia.desc)} <span style="color:var(--suave)">(${r.sugerencia.sim}%)</span></div><button class="copiar" data-copiar="${esc(r.sugerencia.codigo)}">Copiar código</button></div>` : "";
+  let precios = "";
+  if (r.existe === true) {
+    const nd = r.flags.compraNoDisp, okC = !r.flags.sinCompra, okV = !r.flags.sinVenta;
+    const margen = !nd && okC && okV && r.compra != null && r.venta != null ? r.venta - r.compra : null;
+    const pct = margen != null && r.venta ? Math.round(margen / r.venta * 1000) / 10 : null;
+    precios = `<div class="precios">
+      <div class="${okC ? "" : "mal"}"><em>Precio de compra</em>${nd ? '<b style="color:var(--suave)">—</b><div class="ayuda" style="margin:0">No disponible en la API</div>' : `<b>${okC ? esc(eur(r.compra)) : "Falta"}</b>`}</div>
+      <div class="${okV ? "" : "mal"}"><em>Precio de venta${r.ventaFicha !== undefined ? " (tarifa)" : ""}</em><b>${okV ? esc(eur(r.venta)) : "Falta"}</b>${r.ventaFicha != null && r.ventaFicha !== r.venta ? `<div class="ayuda" style="margin:0">En la ficha del artículo: ${esc(eur(r.ventaFicha))}</div>` : ""}</div>
+      <div><em>Diferencia</em><b>${margen != null ? esc(eur(margen)) : "—"}</b>${pct != null ? `<div class="ayuda" style="margin:0">${pct.toLocaleString("es-ES")} % sobre venta</div>` : ""}</div>
+    </div>`;
+  } else precios = `<div class="ayuda" style="margin:0">Sin artículo en FABBRO no hay precios que mostrar.</div>`;
+  const incs = r.inc.length ? r.inc.map(i => `<li class="${i.nivel === "error" ? "" : "rev"}">${esc(i.txt)}</li>`).join("") : `<li class="ok">Sin incidencias</li>`;
+  return `<div class="det">
+    <div class="bloq"><h4>Nombre y descripción</h4>${comp}${sug}</div>
+    <div class="bloq"><h4>Precios en FABBRO</h4>${precios}<ul class="lista-inc">${incs}</ul>
+      <div class="meta-it">${r.codigo ? `Código <b>${esc(r.codigo)}</b> <button class="copiar" data-copiar="${esc(r.codigo)}">Copiar</button> · ` : ""}${r.unidad ? r.cantidad.toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " " + esc(r.unidad) : uds(r.cantidad)} · ${esc(r.archivos)}</div>
+      ${r.muebles && r.muebles.length ? `<div class="meta-it" style="margin-top:6px">Aparece en ${r.muebles.length === 1 ? "el mueble" : r.muebles.length + " muebles"}: ${r.muebles.slice(0, 8).map(esc).join(" · ")}${r.muebles.length > 8 ? " …" : ""}</div>` : ""}
+    </div>
+  </div>`;
+}
+async function copiar(t){ try { await navigator.clipboard.writeText(t); toast("Copiado: " + t); } catch (e) { toast(t); } }
+function actualizarBotonDesplegar(){
+  const items = $$("#vistaGrupos .it"), grps = $$("#vistaGrupos .grp");
+  const todo = grps.length && grps.every(g => g.open) && items.every(i => i.open);
+  $("#btnDesplegar").textContent = todo ? "Plegar todo" : "Desplegar todo";
+}
+$("#btnDesplegar").onclick = () => {
+  const plegar = $("#btnDesplegar").textContent === "Plegar todo";
+  $$("#vistaGrupos .grp").forEach(g => { g.open = !plegar; });
+  $$("#vistaGrupos .it").forEach(i => { i.open = !plegar; });
+  actualizarBotonDesplegar();
+};
+
+/* ============================================================
+   Excel: contenido (compartido por la vista previa y el .xlsx)
+   ============================================================ */
+/* Estilos: 1 cabecera · 2 título · 3 ok · 4 revisar · 5 error · 6 euros · 7 % · 8 negrita · 9 gris · 10 euros falta */
+const ST = { cab: 1, tit: 2, ok: 3, revisar: 4, error: 5, eur: 6, pct: 7, neg: 8, sub: 9, falta: 10 };
+function filaDetalle(r){
+  const est = { ok: "Correcto", revisar: "Revisar", error: "Error" }[r.estado];
+  const existe = r.existe === true ? "Sí" : r.existe === false ? "No" : r.existe === "error" ? "Sin respuesta" : "—";
+  const pr = (v, falta) => r.existe !== true ? "" : falta ? { v: v == null ? "Falta" : v, s: v == null ? ST.error : ST.falta } : { v, s: ST.eur };
+  return [ { v: est, s: ST[r.estado] }, ...(hayTipos() ? [r.tipo] : []), r.nombre, r.cantidad, r.codigo ? { v: r.codigo, s: ST.neg } : { v: "Sin código", s: ST.error },
+    existe, r.descF, r.sim == null ? "" : { v: r.sim / 100, s: ST.pct }, r.flags.compraNoDisp && r.existe === true ? { v: "No disponible", s: ST.sub } : pr(r.compra, r.flags.sinCompra), pr(r.venta, r.flags.sinVenta),
+    r.inc.map(i => i.txt).join(" · ") || "Sin incidencias", r.sugerencia ? `${r.sugerencia.codigo} · ${r.sugerencia.desc} (${r.sugerencia.sim}%)` : "",
+    ...(hayMuebles() ? [r.unidad, (r.muebles || []).join(" | ")] : []), r.archivos ];
+}
+function construirLibro(){
+  const cab = ["Estado", ...(hayTipos() ? ["Tipo"] : []), "Producto (Coohom)", "Uds.", "Código", "En FABBRO", "Descripción FABBRO", "Similitud", "Precio compra", "Precio venta", "Incidencias", "Sugerencia de FABBRO", ...(hayMuebles() ? ["Unidad", "Muebles"] : []), "Archivo"].map(v => ({ v, s: ST.cab }));
+  const anchos = [12, ...(hayTipos() ? [14] : []), 40, 8, 16, 12, 40, 11, 14, 14, 44, 44, ...(hayMuebles() ? [8, 50] : []), 26];
+  const n = resultados.length, c = { ok: 0, revisar: 0, error: 0 }; resultados.forEach(r => c[r.estado]++);
+  const resumen = [
+    [{ v: "Comprobador de códigos y precio de FABBRO", s: ST.tit }],
+    [{ v: "SOLA · Artesanos independientes de la cocina", s: ST.sub }],
+    [],
+    [{ v: "Proyecto", s: ST.neg }, info.archivos],
+    [{ v: "Fecha", s: ST.neg }, info.fecha.toLocaleString("es-ES")],
+    [{ v: "Fuente FABBRO", s: ST.neg }, info.origen],
+    [{ v: "Criterio descripción", s: ST.neg }, `Coincide ≥ ${C.uOk} % · revisar ${C.uRev}–${C.uOk - 1} % · no coincide < ${C.uRev} %`],
+    ...(resultados.some(r => r.flags.compraNoDisp) ? [[{ v: "Precio de compra", s: ST.neg }, "No comprobado (no disponible en la API de FABBRO)"]] : []),
+    [],
+    [{ v: "Estado", s: ST.cab }, { v: "Productos", s: ST.cab }, { v: "% del total", s: ST.cab }],
+    [{ v: "Correctos", s: ST.ok }, c.ok, { v: n ? c.ok / n : 0, s: ST.pct }],
+    [{ v: "A revisar", s: ST.revisar }, c.revisar, { v: n ? c.revisar / n : 0, s: ST.pct }],
+    [{ v: "Con errores", s: ST.error }, c.error, { v: n ? c.error / n : 0, s: ST.pct }],
+    [{ v: "Total", s: ST.neg }, { v: n, s: ST.neg }, { v: 1, s: ST.pct }],
+    [],
+    [{ v: "Incidencia", s: ST.cab }, { v: "Productos", s: ST.cab }, { v: "% del total", s: ST.cab }],
+    ...FILTROS.filter(f => !["todos", "ok"].includes(f.id) && !(f.ocultarSi0 && !resultados.filter(f.f).length)).map(f => {
+      const v = resultados.filter(f.f).length; return [f.l, v, { v: n ? v / n : 0, s: ST.pct }];
+    })
+  ];
+  const inc = resultados.filter(r => r.estado !== "ok");
+  return [
+    { name: "Resumen", rows: resumen, cols: [26, 64, 12] },
+    { name: "Detalle", rows: [cab, ...resultados.map(filaDetalle)], cols: anchos, freeze: 1, autofilter: true },
+    { name: "Incidencias", rows: [cab, ...inc.map(filaDetalle)], cols: anchos, freeze: 1, autofilter: true }
+  ];
+}
+function nombreArchivo(){
+  const base = (proyecto && proyecto.archivos[0] || "proyecto").replace(/\.json$/i, "").replace(/[^\w\-]+/g, "_").slice(0, 40);
+  const f = new Date(); return `Comprobacion_FABBRO_${base}_${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}-${String(f.getDate()).padStart(2, "0")}`;
+}
+
+/* ============================================================
+   Vista previa del Excel
+   ============================================================ */
+let libro = null, hojaAct = 0;
+const colL = i => { let s = ""; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+function textoCelda(c){
+  if (c == null || c === "") return "";
+  const o = typeof c === "object" ? c : { v: c };
+  if (o.v == null || o.v === "") return "";
+  if (typeof o.v === "number") {
+    if (o.s === ST.eur || o.s === ST.falta) return eur(o.v);
+    if (o.s === ST.pct) return Math.round(o.v * 100) + " %";
+    return o.v.toLocaleString("es-ES");
+  }
+  return String(o.v);
+}
+function abrirVista(){
+  libro = construirLibro(); hojaAct = 1;
+  $("#pvNombre").value = nombreArchivo();
+  const c = { ok: 0, revisar: 0, error: 0 }; resultados.forEach(r => c[r.estado]++);
+  $("#pvStats").innerHTML = `<div><b>${resultados.length}</b><span>Productos</span></div><div><b style="color:#b9c6a8">${c.ok}</b><span>Correctos</span></div><div><b style="color:#e3cf8f">${c.revisar}</b><span>Revisar</span></div><div><b style="color:#eba597">${c.error}</b><span>Errores</span></div>`;
+  $("#pvTabs").innerHTML = libro.map((h, i) => `<button data-h="${i}"><span>${esc(h.name)}</span><i>${h.freeze ? h.rows.length - 1 : ""}</i></button>`).join("") +
+    `<span class="sp"></span><span class="nota">Así se verá el archivo en Excel · 3 hojas</span>`;
+  $$("#pvTabs i").forEach(i => { if (!i.textContent) i.remove(); });
+  $$("#pvTabs button").forEach(b => b.onclick = () => pintarHoja(+b.dataset.h));
+  $("#pv").hidden = false; document.body.style.overflow = "hidden";
+  pintarHoja(hojaAct);
+}
+function cerrarVista(){ $("#pv").hidden = true; document.body.style.overflow = ""; }
+function pintarHoja(i){
+  hojaAct = i;
+  $$("#pvTabs button").forEach(b => b.classList.toggle("on", +b.dataset.h === i));
+  const h = libro[i];
+  const nCols = Math.max(h.cols.length, ...h.rows.map(r => r.length)) + 2;
+  const nRows = Math.max(h.rows.length + 4, 30);
+  const w = j => Math.round((h.cols[j] || 10) * 7.6 + 18);
+  let html = `<table class="xl"><colgroup><col style="width:44px">${Array.from({ length: nCols }, (_, j) => `<col style="width:${w(j)}px">`).join("")}</colgroup>`;
+  html += `<thead><tr><th class="rn"></th>${Array.from({ length: nCols }, (_, j) => `<th>${colL(j)}</th>`).join("")}</tr></thead><tbody>`;
+  for (let r = 0; r < nRows; r++) {
+    const row = h.rows[r] || [];
+    const fz = h.freeze && r < h.freeze;
+    html += `<tr${fz ? ' class="fz"' : ""}><th class="rn">${r + 1}</th>`;
+    for (let j = 0; j < nCols; j++) {
+      const c = row[j], s = c && typeof c === "object" ? c.s : 0;
+      const v = c && typeof c === "object" ? c.v : c;
+      let cls = s ? "x" + s : ""; if (!s && typeof v === "number") cls = "xn";
+      const filt = h.autofilter && r === 0 && j < row.length ? '<span class="fl">▼</span>' : "";
+      html += `<td class="${cls}" data-r="${r}" data-c="${j}">${filt}${esc(textoCelda(c))}</td>`;
+    }
+    html += "</tr>";
+  }
+  $("#pvBody").innerHTML = html + "</tbody></table>";
+  $("#pvBody").scrollTop = 0; $("#pvBody").scrollLeft = 0;
+  selCelda(0, 0);
+}
+function selCelda(r, c){
+  $$("#pvBody td.sel").forEach(t => t.classList.remove("sel"));
+  const td = $(`#pvBody td[data-r="${r}"][data-c="${c}"]`); if (td) td.classList.add("sel");
+  const cell = (libro[hojaAct].rows[r] || [])[c];
+  $("#pvRef").textContent = colL(c) + (r + 1);
+  $("#pvVal").textContent = cell && typeof cell === "object" && typeof cell.v === "number" && cell.s === ST.pct ? cell.v : textoCelda(cell);
+}
+$("#pvBody").addEventListener("click", e => { const td = e.target.closest("td[data-r]"); if (td) selCelda(+td.dataset.r, +td.dataset.c); });
+$("#btnVerExcel").onclick = abrirVista;
+$("#pvCerrar").onclick = cerrarVista;
+$("#pv").addEventListener("click", e => { if (e.target.id === "pv") cerrarVista(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#pv").hidden) cerrarVista(); });
+$("#pvDescargar").onclick = () => {
+  let nombre = $("#pvNombre").value.trim().replace(/\.xlsx$/i, "").replace(/[\\/:*?"<>|]+/g, "_") || nombreArchivo();
+  descargar(nombre + ".xlsx", xlsx(libro), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  toast("Excel descargado: " + nombre + ".xlsx");
+};
+
+/* ============================================================
+   Generador .xlsx (sin librerías)
+   ============================================================ */
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8){ let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zip(files){
+  const enc = new TextEncoder(), partes = [], central = []; let off = 0;
+  const d = new Date(), dt = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF, dd = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+  for (const f of files) {
+    const name = enc.encode(f.name), data = enc.encode(f.data), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(10, dt, true); h.setUint16(12, dd, true);
+    h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, name.length, true);
+    partes.push(new Uint8Array(h.buffer), name, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(12, dt, true); c.setUint16(14, dd, true);
+    c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true); c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), name);
+    off += 30 + name.length + data.length;
+  }
+  const cdSize = central.reduce((s, x) => s + x.length, 0);
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cdSize, true); e.setUint32(16, off, true);
+  const all = [...partes, ...central, new Uint8Array(e.buffer)];
+  const out = new Uint8Array(all.reduce((s, x) => s + x.length, 0)); let p = 0; for (const x of all) { out.set(x, p); p += x.length; }
+  return out;
+}
+const xesc = s => String(s ?? "").replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function xlsxSheet(sh){
+  const nCols = Math.max(...sh.rows.map(r => r.length));
+  const rows = sh.rows.map((row, ri) => `<row r="${ri + 1}"${ri === 0 && sh.freeze ? ' ht="22" customHeight="1"' : ""}>` + row.map((cell, ci) => {
+    if (cell == null || cell === "") return "";
+    const c = typeof cell === "object" ? cell : { v: cell };
+    const ref = colL(ci) + (ri + 1), s = c.s ? ` s="${c.s}"` : "";
+    if (c.v == null || c.v === "") return c.s ? `<c r="${ref}"${s}/>` : "";
+    return typeof c.v === "number" ? `<c r="${ref}"${s}><v>${c.v}</v></c>` : `<c r="${ref}"${s} t="inlineStr"><is><t xml:space="preserve">${xesc(c.v)}</t></is></c>`;
+  }).join("") + `</row>`).join("");
+  const pane = sh.freeze ? `<sheetViews><sheetView workbookViewId="0"><pane ySplit="${sh.freeze}" topLeftCell="A${sh.freeze + 1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` : `<sheetViews><sheetView workbookViewId="0" showGridLines="0"/></sheetViews>`;
+  const cols = `<cols>${sh.cols.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`;
+  const af = sh.autofilter && sh.rows.length > 1 ? `<autoFilter ref="A1:${colL(nCols - 1)}${sh.rows.length}"/>` : "";
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${pane}${cols}<sheetData>${rows}</sheetData>${af}</worksheet>`;
+}
+function xlsx(sheets){
+  const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00\\ &quot;€&quot;"/></numFmts>
+<fonts count="5"><font><sz val="10"/><color rgb="FF353535"/><name val="Lato"/></font><font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Lato"/></font><font><b/><sz val="18"/><color rgb="FF353535"/><name val="Cormorant Garamond"/></font><font><b/><sz val="10"/><color rgb="FF353535"/><name val="Lato"/></font><font><sz val="10"/><color rgb="FF8A877E"/><name val="Lato"/></font></fonts>
+<fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF353535"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE3E6DD"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEFE6CF"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF0D9D3"/></patternFill></fill></fills>
+<borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="11">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center"/></xf>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="3" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top"/></xf>
+<xf numFmtId="0" fontId="3" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top"/></xf>
+<xf numFmtId="0" fontId="3" fillId="5" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top"/></xf>
+<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top"/></xf>
+<xf numFmtId="9" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top"/></xf>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top"/></xf>
+<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="164" fontId="3" fillId="5" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top"/></xf>
+</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const dn = sheets.map((s, i) => s.autofilter && s.rows.length > 1 ? `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${xesc(s.name)}'!$A$1:$${colL(Math.max(...s.rows.map(r => r.length)) - 1)}$${s.rows.length}</definedName>` : "").join("");
+  return zip([
+    { name: "[Content_Types].xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>` },
+    { name: "_rels/.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+    { name: "xl/workbook.xml", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${xesc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets>${dn ? `<definedNames>${dn}</definedNames>` : ""}</workbook>` },
+    { name: "xl/_rels/workbook.xml.rels", data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
+    { name: "xl/styles.xml", data: styles },
+    ...sheets.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, data: xlsxSheet(s) }))
+  ]);
+}
+
+/* ============================================================
+   Modo demostración
+   ============================================================ */
+let cfgAntesDemo = null;
+function demoOff(){ if (!demo) return; demo = false; catalogo = null; $("#demoTag").hidden = true; if (cfgAntesDemo) { C = cfgAntesDemo; cfgAntesDemo = null; } pintarAvisos(); }
+$("#btnDemo").onclick = () => {
+  if (!demo) cfgAntesDemo = { ...C };
+  demo = true; $("#demoTag").hidden = false;
+  C = { ...C, fCode: "codigo", fDesc: "descripcion", fCompra: "precio_compra", fVenta: "precio_venta", coNombre: "name", coCodigo: "code", coCant: "quantity" };
+  const arts = [["B2P60","Bajo 2 puertas 60 cm",182.4,395],["B1P40","Bajo 1 puerta 40 cm",121.1,268],["BC3C80","Bajo cajonera 3 cajones 80 cm",298.7,640],["CH60","Columna horno 60 cm",341.0,0],["A2P80","Alto 2 puertas 80 cm",154.2,329],["BF2CKBG","Bajo fregadero 2 cajones kit basura gola",0,512],["ZOC10","Zócalo aluminio 10 cm",18.5,39],["MU60","Mural 60 cm con puertas",402.3,865],["COS58","Costado decorativo 58",null,null]]
+    .map(([codigo, descripcion, precio_compra, precio_venta]) => ({ codigo, descripcion, precio_compra, precio_venta }));
+  const json = { designName: "Cocina de ejemplo", rooms: [{ name: "Cocina", products: [
+    { name: "Bajo 2 puertas 60", code: "B2P60" }, { name: "Bajo 2 puertas 60", code: "B2P60" }, { name: "Bajo 1P 40", code: "B1P40" },
+    { name: "Cajonera 3 cajones 80", code: "BC3C80" }, { name: "Columna horno 60", code: "CH60" }, { name: "Alto 2 puertas 80", code: "A2P80" },
+    { name: "Alto 2 puertas 80", code: "A2P80" }, { name: "Bajo fregadero kit basura", code: "BF2CKBG" }, { name: "Zócalo aluminio", code: "ZOC10", quantity: 3 },
+    { name: "Mural 60 puertas", code: "MU-60" }, { name: "Bajo esquina 90", code: "" }, { name: "Costado decorativo 58", code: "COS58" }, { name: "Panel lateral visto", code: "A2P80" } ] }] };
+  construirCatalogo(arts, "demostración", C);
+  analizarProyecto([{ nombre: "ejemplo_coohom.json", json }]);
+  pintarAvisos();
+  comprobar();
+};
+
+/* ============================================================
+   Inicio
+   ============================================================ */
+(async () => {
+  leerEnlaceAcceso();
+  await cargarConfig();
+  pintarAvisos();
+})();
+</script>
+</body>
+</html>
